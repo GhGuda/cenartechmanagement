@@ -150,13 +150,16 @@
   
     <div class="download-button">
         <a href="{% url 'staff_home' %}" class="btn btn-danger"><i class="fas fa-home"></i> Home</a>
+
+        {% if grouped_results.items %}
         <a href="?downloads=1" id="download-pdf" class="btn btn-success">
             <i class="fas fa-download"></i> Save Report Cards as PDF
         </a>
+        {% endif %}
     </div>
     
     
-    
+    {% if grouped_results.items %}
     {% for student, results in grouped_results.items %}
     <div class="container">
         <div class="school-header">
@@ -241,5 +244,8 @@
         </div>
     </div>
     {% endfor %}
+    {% else %}
+        <p style="text-align:center; font-size:2rem;">No results available😫</p>
+    {% endif %}
 </body>
 </html>

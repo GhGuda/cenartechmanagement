@@ -113,7 +113,7 @@ class Student(models.Model):
     total_marks_term_one = models.DecimalField(max_digits=8, decimal_places=1, null=True)
     total_marks_term_two = models.DecimalField(max_digits=8, decimal_places=1, null=True)
     total_marks_term_three = models.DecimalField(max_digits=8, decimal_places=1, null=True)
-    overall_total_marks = models.DecimalField(max_digits=10, decimal_places=1, null=True)
+    overall_total_marks = models.DecimalField(max_digits=10, decimal_places=0, null=True)
     
     
     

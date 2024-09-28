@@ -103,9 +103,9 @@
                                         <option hidden>Staff</option>
                                         {% for staff in staffs %}
                                             <option value="{{ staff.staff_name.username }}">
-                                                {{ staff.staff_name.first_name|capfirst }} {{ staff.staff_name.middle_name|capfirst }} {{ staff.staff_name.last_name|capfirst }} currently managing 
-                                                ({% for class in staff.class_managed.all %}
-                                                    {{ class.name }}{% if not forloop.last %}, {% endif %}
+                                                {{ staff.staff_name.first_name|capfirst }} {{ staff.staff_name.middle_name|capfirst }} {{ staff.staff_name.last_name|capfirst }} currently teaching 
+                                                ({% for class in staff.subject_teacher_subject.all %}
+                                                    {{ class.subject_name }}{% if not forloop.last %}, {% endif %}
                                                 {% endfor %})
                                             </option>
                                         {% endfor %}

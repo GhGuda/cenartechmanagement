@@ -25,33 +25,41 @@ def display_student_results(request):
         classes = StudentClasses.objects.get(student=student)
         class_list = classes.classes.all()
         studentResult = StudentResult.objects.filter(student=student)
-        for item in studentResult:
-            student_year = item.year
+        
     except:
         messages.error(request, "No marks yet")
         classes = None
         class_list = None
+        student_year = None
+        studentResult = []
 
-    if request.method == 'POST' or request.GET.get('downloads'):
-        # try:
+    for item in studentResult:
+            student_year = item.year
+    try:       
+        if request.method == 'POST' or request.GET.get('downloads'):
+            
             if request.method == 'POST':
                 class_id = request.POST['class']
                 term = request.POST['term']
                 year = request.POST['year']
                 request.session['class_id'] = class_id
                 request.session['term'] = term
+                request.session['year'] = year
             else:
                 class_id = request.session.get('class_id')
                 term = request.session.get('term')
                 year = request.session.get('year')
                 
+            
+                
                 
             # Fetch the class and student results
             results = StudentResult.objects.filter(student=student, previous_class=class_id, year=year, term=term)
-            
-            # if not results.exists():
-            #     messages.error(request, "No results found for the selected class and term.")
-            #     return redirect('display_student_results')
+            if results.exists():
+                pass
+            else:
+                messages.error(request, "No results found!")
+                return redirect('display_student_results')
             
             grouped_results = {student: results}
 
@@ -60,10 +68,10 @@ def display_student_results(request):
                     html_content = render_to_string('student/my_result.html', {
                         'grouped_results': grouped_results,
                         'term': term,
+                        'year': year,
                         'student': student, 
                     })
                     
-
                     pdfkit_options = {
                         'enable-local-file-access': '',
                         'no-outline': None,
@@ -87,16 +95,18 @@ def display_student_results(request):
             # Save class_id in the session and update session years
             request.session['class_id'] = class_id
 
-            # Render the HTML page
+            
             context = {
                 'grouped_results': grouped_results,
                 'term': term,
+                'year': year,
                 'student': student,  # Include student info
                 'student_year': student_year,  # Include student info
             }
             return render(request, "student/my_result.html", context)
-        # except Exception as e:
-        #     messages.error(request, f"Please select a class to fetch student results! Error: {str(e)}")
+    except Exception as e:
+        messages.error(request, f"Please select a class to fetch student results! Error: {str(e)}")
+        
 
     data = {
         'students': student,
