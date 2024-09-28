@@ -30,7 +30,7 @@ SECRET_KEY = config("SECRET_KEY")
 # DEBUG = config('DEBUG', cast=bool)
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'bbacademy.onrender.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'cenartechmanagement.onrender.com']
 
 
 # Application definition
