@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if request.user.user_type == "STAFF" %}
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-12">
+            {% if staff.gender == "male" %}
+            <h3 class="page-title">Welcome Sir {{ staff.staff_name.first_name|capfirst }} {{ staff.staff_name.last_name|capfirst }}!</h3>
+            {% else %}
+            <h3 class="page-title">Welcome Madam {{ staff.staff_name.first_name|capfirst }} {{ staff.staff_name.last_name|capfirst }}!</h3>
+            {% endif %}
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item active">Teacher Dashboard</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+       <div class="card">
+          <div class="card-body">
+             <form method="POST">
+                {% csrf_token %}
+                {% include "includes/messages.html" %}
+                <div class="row">
+                   <div class="col-12">
+                      <h5 class="form-title"><span>Select Class/Form Managing To View Report Cards</span></h5>
+                   </div>
+                   <div class="col-12 col-sm-12">
+                      <div class="form-group">
+                         <label>Class/Form</label>
+                         <select name="class" class="form-control" required>
+                            <option value="" hidden>Select Class/Form</option>
+                            {% for class in class_form %}
+                                <option value="{{ class.id }}">{{ class.name }}</option>
+                            {% endfor %}
+                         </select>
+                      </div>
+                   </div>
+                   <div class="col-12">
+                      <button type="submit" class="btn btn-primary">Fetch Students</button>
+                   </div>
+                </div>
+             </form>
+          </div>
+       </div>
+    </div>
+</div>
+{% endif %}
+{% endblock content %}

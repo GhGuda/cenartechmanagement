@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if request.user.user_type == "HOD" %}
+<style>
+   input[type="number"]::-webkit-outer-spin-button,
+   input[type="number"]::-webkit-inner-spin-button {
+     -webkit-appearance: none;
+     margin: 0;
+   }
+ 
+   input[type="number"] {
+     -moz-appearance: textfield; /* Firefox */
+     appearance: textfield;
+   }
+ </style>
+
+
+<div class="page-header">
+    <div class="row align-items-center">
+       <div class="col">
+          <h3 class="page-title">Add Student</h3>
+          <ul class="breadcrumb">
+             <li class="breadcrumb-item"><a href="{% url "view_student" %}">Students</a></li>
+             <li class="breadcrumb-item active">Add Student</li>
+          </ul>
+       </div>
+    </div>
+ </div>
+<div class="row">
+    <div class="col-sm-12">
+       <div class="card">
+          <div class="card-body">
+             <form method="POST" enctype="multipart/form-data">
+                {% include "includes/messages.html" %}
+                <div class="row">
+                   <div class="col-12">
+                      <h5 class="form-title"><span>Student Information</span></h5>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>First Name</label>
+                         <input type="text" name="fname" class="form-control" placeholder="Emmanuell">
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Middle Name(s)</label>
+                         <input type="text" name="mname" class="form-control" placeholder="Yaw">
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Last Name</label>
+                         <input type="text" name="lname" class="form-control" placeholder="Narh">
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Username</label>
+                         <input type="text" name="username" class="form-control" placeholder="Emma" required>
+                      </div>
+                   </div>
+                   
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Gender</label>
+                         <select name="gender" class="form-control" required>
+                            <option hidden>Select Gender</option>
+                            <option value="Female">Female</option>
+                            <option value="Male">Male</option>
+                         </select>
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Date of Birth</label>
+                         <div>
+                            <input type="date" name="dob" class="form-control">
+                         </div>
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Class/Form</label>
+                        <select name="class"  class="form-control" required>
+                            <option hidden>Select Class/Form</option>
+                            {% for class in class %}
+                                <option value={{class.id}}>{{class.name}}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Religion</label>
+                         <input type="text" name="religion" class="form-control" placeholder="Christian">
+                      </div>
+                   </div>
+                  
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Student Number</label>
+                         <input type="number" name="phone" class="form-control" placeholder="0244441861">
+                      </div>
+                   </div>
+
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Email</label>
+                         <input type="email" name="email" class="form-control" placeholder="student@gmail.com">
+                      </div>
+                   </div>
+
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Student's Password</label>
+                         <input type="text" name="student_password" class="form-control" required placeholder="********">
+                      </div>
+                   </div>
+                   
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Student Image</label>
+                         <input type="file" name="profile_pic" accept="image/*" class="form-control">
+                      </div>
+                   </div>
+                   <div class="col-12">
+                      <h5 class="form-title"><span>Parent Information</span></h5>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Father's Name</label>
+                         <input type="text" name="father_name" class="form-control" placeholder="Mr.Isaac">
+                      </div>
+                   </div>
+                   
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Father's Mobile</label>
+                         <input type="number" name="father_number" class="form-control" placeholder="0244441861">
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Father's Email</label>
+                         <input type="email" name="father_email" class="form-control" placeholder="isaac@gmail.com">
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Mother's Name</label>
+                         <input type="text" name="mother_name" class="form-control" placeholder="Miss. Elizabeth">
+                      </div>
+                   </div>
+                   
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Mother's Mobile</label>
+                         <input type="number" name="mother_number" class="form-control" placeholder="0244441861">
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Mother's Email</label>
+                         <input type="email"name="mother_email" class="form-control" placeholder="eli@gmail.com">
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Student Present Address</label>
+                         <textarea name="address1" class="form-control" placeholder="Kasoa Kakraba"></textarea>
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Student Permanent Address</label>
+                         <textarea name="address2" class="form-control" placeholder="Kasoa Nyanyanu"></textarea>
+                      </div>
+                   </div>
+                   <div class="col-12">
+                      <button type="submit" class="btn btn-primary">Add student</button>
+                   </div>
+                </div>
+             </form>
+          </div>
+       </div>
+    </div>
+ </div>
+ {% endif %}
+{% endblock content %}

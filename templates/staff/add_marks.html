@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if request.user.user_type == "STAFF" %}
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+    .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: auto;
+    }
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    .button-container button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+    .button-container button:hover {
+        background-color: #45a049;
+    }
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    .table-header li {
+        margin-bottom: 10px;
+        list-style: none;
+    }
+    .table-header div:last-child {
+        margin-bottom: 0;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: start;
+    }
+    th {
+        background-color: #f2f2f2;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+    tr:hover {
+        background-color: #f5f5f5;
+    }
+    .exam-button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+    .exam-button:hover {
+        background-color: #45a049;
+    }
+    input {
+        width: 100%;
+    }
+    .student-section {
+        border-top: 3px solid black; /* Bold border on top */
+    }
+    .student-section td {
+        padding: 8px;
+        border-bottom: 1px solid #ccc; /* Light border between subjects */
+    }
+    .form-group textarea {
+        margin: 0;
+        width: 100%;
+        resize: none;
+    }
+    p.warn {
+        text-align: center;
+        font-size: 2rem;
+    }
+</style>
+
+{% comment %} {% if students.class_id.managed_by.staff_name.username == request.user.username %} {% endcomment %}
+
+<div class="container">
+    <div class="table-header">
+        <div class="yie">
+            <li><b>CLASS/FORM:</b> {{ students.class_id.name }}</li>
+            <li><b>STUDENT NAME:</b> {{ students.user.first_name|capfirst }} {{ students.user.middle_name|capfirst }} {{ students.user.last_name|capfirst }}</li>
+        </div>
+    
+        <div class="yie">
+            <li><b>ACADEMIC YEAR:</b> {{ previous_year }}/{{ current_year }}</li>
+            <li><b>TERM:</b> {{term.term}}</li>
+        </div>
+    </div>
+    {% if is_class_manager or staff_subjects %}
+    <form action="" method="post" class="table-container">
+        {% include "includes/messages.html" %}
+
+        {% csrf_token %}
+        <div class="button-container">
+            <button type="submit">Save Records</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Exercise</th>
+                    <th>Homework</th>
+                    <th>Project Work</th>
+                    <th>Exam</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subject in subjects %}
+                    <tr class="{% if forloop.first %}student-section{% endif %}">
+                        <td>{{ subject.subject_name }}</td>
+
+                        <!-- Exercise Score Input -->
+                        <td>
+                            <input type="number" name="exercise_{{ subject.subject_name }}" placeholder="40" 
+                                value="{% for result in student_results %}{% if result.subject == subject.subject_name %}{{ result.exercise_score }}{% endif %}{% endfor %}"
+                                {% if subject not in staff_subjects and not is_class_manager %} disabled {% endif %}
+                                {% if subject not in staff_subjects and is_class_manager %} disabled {% endif %}>
+                        </td>
+
+                        <!-- Homework Score Input -->
+                        <td>
+                            <input type="number" name="homework_{{ subject.subject_name }}" placeholder="40" 
+                                value="{% for result in student_results %}{% if result.subject == subject.subject_name %}{{ result.homework_score }}{% endif %}{% endfor %}"
+                                {% if subject not in staff_subjects and not is_class_manager %} disabled {% endif %}
+                                {% if subject not in staff_subjects and is_class_manager %} disabled {% endif %}>
+                        </td>
+
+                        <!-- Project Work Score Input -->
+                        <td>
+                            <input type="number" name="project_{{ subject.subject_name }}" placeholder="20" 
+                                value="{% for result in student_results %}{% if result.subject == subject.subject_name %}{{ result.project_work_score }}{% endif %}{% endfor %}"
+                                {% if subject not in staff_subjects and not is_class_manager %} disabled {% endif %}
+                                {% if subject not in staff_subjects and is_class_manager %} disabled {% endif %}>
+                        </td>
+
+                        <!-- Exam Score Input -->
+                        <td>
+                            <input type="number" name="exam_{{ subject.subject_name }}" placeholder="100" 
+                                value="{% for result in student_results %}{% if result.subject == subject.subject_name %}{{ result.exam_score }}{% endif %}{% endfor %}"
+                                {% if subject not in staff_subjects and not is_class_manager %} disabled {% endif %}
+                                {% if subject not in staff_subjects and is_class_manager %} disabled {% endif %}>
+                        </td>
+                    </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+        
+        {% if is_class_manager %}
+        <div class="form-group">
+            <label for="remark">Student Attendance</label>
+            <input type="text" name="attendance" value="{{student.attendance}}" placeholder="40 OUT OF 45" class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="conduct">Conduct</label>
+            <textarea id="conduct" name="conduct" class="form-control" value="" placeholder="Conduct">{{students.conduct}}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="remark">Teacher's Remarks</label>
+            <textarea id="remark" name="remarks" class="form-control" value="" placeholder="Teacher's Remarks">{{students.remarks}}</textarea>
+        </div>
+        {% endif %}
+    </form>
+    {% else %}
+        <!-- Warning message if the staff doesn't manage the class or any subject -->
+        <p class="warn">You do not have permission to add marks for this student😑.</p>
+    {% endif %}
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const inputs = document.querySelectorAll('input[type="number"]');
+    
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                const placeholder = this.placeholder;
+                const value = this.value;
+                let max;
+    
+                // Determine the max value based on the placeholder
+                if (placeholder.toLowerCase() === 'exam') {
+                    max = 100;
+                } else {
+                    max = parseInt(placeholder, 10);
+                }
+    
+                // Add warning if the value exceeds the placeholder value
+                if (value > max) {
+                    this.style.border = '2px solid red';
+                    this.style.borderRadius = '4px';
+                } else {
+                    this.style.border = '';
+                    this.style.boxShadow = '';
+                }
+            });
+        });
+    });
+</script>
+{% endif %}
+{% endblock content %}

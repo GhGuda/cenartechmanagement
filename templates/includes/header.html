@@ -1,0 +1,73 @@
+{% load static %}
+<div class="header">
+    <div class="header-left">
+      {% if user.user_type == "HOD" %}
+      <a href="{% url "hod_home" %}" class="logo">
+       <img src="{% static 'assets/bcc.png' %}" alt="Logo" style="width: 120; height: 40; object-fit: contain;">
+       </a>
+       <a href="{% url "hod_home" %}" class="logo logo-small">
+       <img src="{% static 'assets/bcc.png' %}" alt="Logo" width="30" height="30" style="object-fit: contain;">
+      </a>
+
+      {% elif user.user_type == "STUDENT" %}
+      <a href="{% url "student_home" %}" class="logo">
+         <img src="{% static 'assets/bcc.png' %}" alt="Logo" style="width: 120; height: 40; object-fit: contain;">
+         </a>
+         <a href="{% url "student_home" %}" class="logo logo-small">
+         <img src="{% static 'assets/bcc.png' %}" alt="Logo" width="30" height="30" style="object-fit: contain;">
+      </a>
+      {% else %}
+
+      <a href="{% url "staff_home" %}" class="logo">
+         <img src="{% static 'assets/bcc.png' %}" alt="Logo" style="width: 120; height: 40; object-fit: contain;">
+         </a>
+         <a href="{% url "staff_home" %}" class="logo logo-small">
+         <img src="{% static 'assets/bcc.png' %}" alt="Logo" width="30" height="30" style="object-fit: contain;">
+      </a>
+      {% endif %}
+    </div>
+    <a href="javascript:void(0);" id="toggle_btn">
+    <i class="fas fa-align-left"></i>
+    </a>
+    {% if user.user_type == "HOD" %}
+    <div class="top-nav-search">
+       <!-- Search form omitted for brevity -->
+      <form method="POST" action="{% url "search" %}">
+         {% csrf_token %}
+         <input type="text" name="search" value="{{param}}" class="form-control" placeholder="Search here">
+         <button class="btn" type="submit"><i class="fas fa-search"></i></button>
+      </form>
+    </div>
+    {% endif %}
+    <a class="mobile_btn" id="mobile_btn">
+    <i class="fas fa-bars"></i>
+    </a>
+    <ul class="nav user-menu">
+       <li class="nav-item dropdown has-arrow">
+          <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+          <span class="user-img">
+              <img class="rounded-circle" src="{{user.profile_pic.url}}" width="31" height="31" style="object-fit: cover;" alt="profile Pic">
+          </span>
+          </a>
+          <div class="dropdown-menu">
+             <div class="user-header">
+                <div class="avatar avatar-sm">
+                   <img src="{{user.profile_pic.url}}" alt="User Image" class="avatar-img rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                </div>
+                <div class="user-text">
+                   <h6>{{user.username|capfirst}}</h6>
+                   {% if user.user_type == "HOD" %}
+                   <p class="text-muted mb-0">HOD</p>
+                   {% elif user.user_type == "STUDENT" %}
+                   <p class="text-muted mb-0">STUDENT</p>
+                   {% else %}
+                   <p class="text-muted mb-0">STAFF</p>
+                   {% endif %}
+                </div>
+             </div>
+             <a class="dropdown-item" href="{% url 'profile' %}">My Profile Update</a>
+             <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+          </div>
+       </li>
+    </ul>
+ </div>

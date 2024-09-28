@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% include "includes/messages.html" %}
+    <div class="content container-fluid">
+        <div class="page-header">
+            <div class="row">
+                <div class="col-sm-12">
+                    {% if student.class_id.name == "Completed Class" %}
+                        <h3 class="page-title">Welcome, Old Student {{student.user.first_name|capfirst}} {{student.user.middle_name|capfirst}} {{student.user.last_name|capfirst}}!</h3>
+                    {% else %}
+                        <h3 class="page-title">Welcome {{student.user.first_name|capfirst}} {{student.user.middle_name|capfirst}} {{student.user.last_name|capfirst}}!</h3>
+                    {% endif %}
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item active">Your Dashboard</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="card bg-nine w-100">
+                    <div class="card-body">
+                        <div class="db-widgets d-flex justify-content-between align-items-center">
+                            <div class="db-icon">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                            <div class="db-info">
+                                {% if student.class_id.name == "Completed Class" %}
+                                    <h3>Completed</h3>
+                                    <h6>Current Stage</h6>
+                                {% else %}
+                                    <h3>{{student.class_id.name}}</h3>
+                                    <h6>Current Stage</h6>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="card bg-six w-100">
+                    <div class="card-body">
+                        <div class="db-widgets d-flex justify-content-between align-items-center">
+                            <div class="db-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            {% if total > 999 %}
+                                <div class="db-info">
+                                    <h3 style="color:green">{{total}}/{{School_marks}}</h3>
+                                    <h6>Cut of point</h6>
+                                </div>
+
+                            {% else %}
+                                <div class="db-info">
+                                    <h3 style="color:red">{{total}}/{{School_marks}}</h3>
+                                    <h6>Cut of point</h6>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="card bg-ten w-100">
+                    <div class="card-body">
+                        <div class="db-widgets d-flex justify-content-between align-items-center">
+                            <div class="db-icon">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <div class="db-info">
+                                {% if student.class_id.name == "Completed Class" %}
+                                    <h3>{{staff}}</h3>
+                                    <h6>Class Teacher</h6>
+                                {% else %}
+                                    <h3> 
+                                        {{staff.staff_name.first_name|capfirst}}
+                                        {{staff.staff_name.last_name|capfirst}}
+
+                                    </h3>
+                                    <h6>Class Teacher</h6>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="card bg-eleven w-100">
+                    <div class="card-body">
+                        <div class="db-widgets d-flex justify-content-between align-items-center">
+                            <div class="db-icon">
+                                <i class="far fa-calendar"></i>
+                            </div>
+                            <div class="db-info">
+                                {% if student.class_id.name == "Completed Class" %}
+                                <h3>None</h3>
+                                <h6>Current Term</h6>
+
+                                {% else %}
+
+                                <h3>Term {{term.term}}</h3>
+                                <h6>Current Term</h6>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                {% if student.class_id.name == "Completed Class" %}
+                    <div class="card flex-fill w-100 text-center">
+                        <div class="card-header">
+                            <h5 class="card-title">Congratulations!</h5>
+                        </div>
+                        <div class="card-body">
+                            <h5>You are now an old student! 🎉</h5>
+                        </div>
+                    </div>
+                    <!-- Confetti JS -->
+                    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.3.2/dist/confetti.browser.min.js"></script>
+                    <script>
+                        // Launch confetti
+                        confetti({
+                            particleCount: 800,
+                            spread: 150,
+                            origin: { y: 0.6 }
+                        });
+                    </script>
+
+
+                {% else %}
+                    <div class="card flex-fill w-100">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-6">
+                                    <h5 class="card-title">Current Marks</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card flex-fill w-100">
+                                    <div class="pt-3 pb-3">
+                                        <div class="table-responsive lesson">
+                                            <table id="table_id" class="table table-hover table-center mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        {% comment %} <th>Student Name</th> {% endcomment %}
+                                                        <th>Subject</th>
+                                                        <th>Class Work (40)</th>
+                                                        <th>Home Work (40)</th>
+                                                        <th>Project work (20)</th>
+                                                        <th>Total</th>
+                                                        <th>30%</th>
+                                                        <th>Exam Score</th>
+                                                        <th>70%</th>
+                                                        <th>Total Score</th>
+                                                        <th>Position</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for subject in student.subjects.all %}
+                                                    <tr>
+                                                        {% if forloop.first %}
+                                                        {% comment %} <td rowspan="{{ student.subjects.count }}">{{ student.user.first_name|capfirst }} {{ student.user.middle_name|capfirst }} {{ student.user.last_name|capfirst }}</td> {% endcomment %}
+                                                        {% endif %}
+                                                        <td>{{ subject.subject_name }}</td>
+                                                        <td>
+                                                            {% for result in results %}
+                                                                {% if result.subject == subject.subject_name %}
+                                                                    {{ result.exercise_score }}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                        <td>
+                                                            {% for result in results %}
+                                                                {% if result.subject == subject.subject_name %}
+                                                                    {{ result.homework_score }}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                        <td>
+                                                            {% for result in results %}
+                                                                {% if result.subject == subject.subject_name %}
+                                                                    {{ result.project_work_score }}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                        <td>
+                                                            {% for result in results %}
+                                                                {% if result.subject == subject.subject_name %}
+                                                                    {{ result.sum_class_score }}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                        <td>
+                                                            {% for result in results %}
+                                                                {% if result.subject == subject.subject_name %}
+                                                                    {{ result.total_class_score }}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                        <td>
+                                                            {% for result in results %}
+                                                                {% if result.subject == subject.subject_name %}
+                                                                    {{ result.exam_score }}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                        <td>
+                                                            {% for result in results %}
+                                                                {% if result.subject == subject.subject_name %}
+                                                                    {{ result.exams_score }}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                        <td>
+                                                            {% for result in results %}
+                                                                {% if result.subject == subject.subject_name %}
+                                                                    {{ result.total_score }}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                        <td>
+                                                            {% for result in results %}
+                                                                {% if result.subject == subject.subject_name %}
+                                                                    {{ result.profi }}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+</div>
+{% endblock content %}

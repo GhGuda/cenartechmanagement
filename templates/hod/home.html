@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+
+{% block content %}
+{% if request.user.user_type == "HOD" %}
+{% include "includes/messages.html" %}
+    <div class="page-header">
+       <div class="row">
+          <div class="col-sm-12">
+             <h3 class="page-title">Welcome {{user.username|capfirst}}!</h3>
+             <ul class="breadcrumb">
+                <li class="breadcrumb-item active">Dashboard</li>
+             </ul>
+          </div>
+       </div>
+    </div>
+    <div class="row">
+       <div class="col-xl-3 col-sm-6 col-12 d-flex">
+          <div class="card bg-one w-100">
+             <div class="card-body">
+                <div class="db-widgets d-flex justify-content-between align-items-center">
+                   <div class="db-icon">
+                      <i class="fas fa-user-graduate"></i>
+                   </div>
+                   <div class="db-info">
+                      <h3>{{students}}</h3>
+                      {% if students == 1 %}
+                      <h6>Student</h6>
+                      {% else %}
+                      <h6>Students</h6>
+                      {% endif %}
+                   </div>
+                </div>
+             </div>
+          </div>
+       </div>
+       <div class="col-xl-3 col-sm-6 col-12 d-flex">
+          <div class="card bg-two w-100">
+             <div class="card-body">
+                <div class="db-widgets d-flex justify-content-between align-items-center">
+                   <div class="db-icon">
+                      <i class="fas fa-chalkboard-teacher"></i>
+                   </div>
+                   <div class="db-info">
+                      <h3>{{staffs}}</h3>
+                      {% if staffs == 1 %}
+                      <h6>Staff</h6>
+                      {% else %}
+                      <h6>Staffs</h6>
+                      {% endif %}
+                   </div>
+                </div>
+             </div>
+          </div>
+       </div>
+       
+       <div class="col-xl-3 col-sm-6 col-12 d-flex">
+          <div class="card bg-four w-100">
+             <div class="card-body">
+                <div class="db-widgets d-flex justify-content-between align-items-center">
+                   <div class="db-icon">
+                     <i class="far fa-calendar"></i>
+                   </div>
+                   <div class="db-info">
+                      <h3>Term {{term.term}}</h3>
+                      <h6>Current Term</h6>
+                   </div>
+                </div>
+             </div>
+          </div>
+       </div>
+       <div class="col-xl-3 col-sm-6 col-12 d-flex">
+         <div class="card bg-four w-100">
+            <div class="card-body">
+               <div class="db-widgets d-flex justify-content-between align-items-center">
+                  <div class="db-icon">
+                    <i class="fas fa-book"></i>
+                  </div>
+                  <div class="db-info">
+                     <h3>{{subject.count}}</h3>
+                     <h6>Number of subjects</h6>
+                  </div>
+                </div>
+             </div>
+          </div>
+       </div>
+    </div>
+       
+    <div class="row">
+      <div class="col-md-12 col-lg-12">
+         <div class="card card-chart">
+            <div class="card-body">
+               <div id="stud_gender"></div>
+            </div>
+         </div>
+      </div>
+   
+      <div class="col-md-12 col-lg-12">
+         <div class="card card-chart">
+            <div class="card-header">
+               <div class="row align-items-center">
+                  <div class="col-6">
+                     <h5 class="card-title">Select To View</h5>
+                  </div>
+                  <div class="col-6">
+                     <ul class="list-inline-group text-right mb-0 pl-0">
+                        <li class="list-inline-item">
+                           <div class="form-group mb-0 amount-spent-select">
+                              <select class="form-control form-control-sm" id="viewSelector">
+                                 <option value="admission">Yearly Admissions</option>
+                                 <option value="super">Yearly Depreciation</option>
+                              </select>
+                           </div>
+                        </li>
+                     </ul>
+                  </div>
+               </div>
+            </div>
+      
+            <!-- Admission Section -->
+            <div class="admission" id="admissionDiv">
+               <div class="col-md-12 d-flex admitted">
+                  <div class="card flex-fill">
+                     <div class="card-header">
+                        <h5 class="card-title">Students Admitted This Term</h5>
+                     </div>
+                     <div class="card-body">
+                        <div class="table-responsive">
+                           <table class="table table-hover table-center">
+                              <thead class="thead-light">
+                                 <tr>
+                                    <th>Class/Form</th>
+                                    <th class="text-center">Number Of Students</th>
+                                    <th class="text-right">Year</th>
+                                 </tr>
+                              </thead>
+                              <tbody>
+                                 {% for i in admitted %}
+                                 <tr>
+                                    <td class="text-nowrap">{{i.class_form}}</td>
+                                    <td class="text-center">{{i.student_count}}</td>
+                                    <td class="text-right">{{current_year}}</td>
+                                 </tr>
+                                 {% endfor %}
+                              </tbody>
+                           </table>
+                           <p>Total number of students admitted this year is <b>{{admitted_year_count}}.</b></p>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               
+               <div class="card-body admitted">
+                  <div id="admitted"></div>
+               </div>
+            </div>
+      
+            <!-- Super Section -->
+            <div class="super" id="superDiv" style="display:none;">
+               <div class="col-md-12 d-flex lost">
+                  <div class="card flex-fill">
+                     <div class="card-header">
+                        <h5 class="card-title">Students Who Stopped This Term</h5>
+                     </div>
+                     <div class="card-body">
+                        <div class="table-responsive">
+                           <table class="table table-hover table-center">
+                              <thead class="thead-light">
+                                 <tr>
+                                    <th>Class/Form</th>
+                                    <th class="text-center">Number Of Students</th>
+                                    <th class="text-right">Year</th>
+                                 </tr>
+                              </thead>
+                              <tbody>
+                                 {% for i in passed %}
+                                 <tr>
+                                    <td class="text-nowrap">{{i.class_form}}</td>
+                                    <td class="text-center">{{i.student_count}}</td>
+                                    <td class="text-right">{{current_year}}</td>
+                                 </tr>
+                                 {% endfor %}
+                              </tbody>
+                           </table>
+                           <p>Total number of students who have left the school this year is <b>{{year_count}}.</b></p>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+      
+               <div class="card card-chart">
+                  <div class="card-body">
+                     <div id="chart"></div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      
+      <script>
+         document.getElementById('viewSelector').addEventListener('change', function () {
+            var selectedValue = this.value;
+            var admissionDiv = document.getElementById('admissionDiv');
+            var superDiv = document.getElementById('superDiv');
+            
+            if (selectedValue === 'admission') {
+               admissionDiv.style.display = 'block';
+               superDiv.style.display = 'none';
+            } else if (selectedValue === 'super') {
+               admissionDiv.style.display = 'none';
+               superDiv.style.display = 'block';
+            }
+         });
+      </script>
+      
+   </div>
+{% endif %}
+{% endblock content %}
+
+
+  

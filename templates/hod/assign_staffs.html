@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if request.user.user_type == "HOD" %}
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">Assign Staff to Class/Subject</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url "hod_home" %}">Dashboard</a></li>
+                <li class="breadcrumb-item active">Assign Staff to Class/Subject</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    {% include "includes/messages.html" %}
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="form-title"><span>Add Staff to Class/Form</span></h5>
+                        </div>
+
+                        <!-- Action Select Dropdown -->
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label>Choose Action</label>
+                                <select name="action" id="actionSelect" class="form-control">
+                                    <option hidden>Choose Action</option>
+                                    <option value="AssignToClass">Assign Staff to Class</option>
+                                    <option value="AssignToSubject">Assign Staff to Subject</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Assign to Class Section -->
+                        <div id="AssignToClass" class="col-12" style="display:none;">
+                            <div class="col-12">
+                                <div class="form-group" style="width:100%">
+                                    <label>Class/Form</label>
+                                    <select name="class" class="form-control col-12" >
+                                        <option hidden>Select Class/Form</option>
+                                        {% for class in class %}
+                                            <option value="{{ class.id }}">{{ class.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Staff</label>
+                                    <select name="staff_name" class="form-control">
+                                        <option hidden>Staff</option>
+                                        {% for staff in staffs %}
+                                            <option value="{{ staff.staff_name.username }}">
+                                                {{ staff.staff_name.first_name|capfirst }} {{ staff.staff_name.middle_name|capfirst }} {{ staff.staff_name.last_name|capfirst }} currently managing 
+                                                ({% for class in staff.class_managed.all %}
+                                                    {{ class.name }}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %})
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Assign to Subject Section -->
+                        <div id="AssignToSubject" class="col-12" style="display:none;">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Class/Form</label>
+                                    <select name="subjectClass" class="form-control">
+                                        <option hidden>Select Class/Form</option>
+                                        {% for class in class %}
+                                            <option value="{{ class.id }}">{{ class.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Subjects</label>
+                                    <select name="subject" class="form-control">
+                                        <option hidden>Select Subject</option>
+                                        {% for sub in subject %}
+                                            <option value="{{ sub.subject_name }}">{{ sub.subject_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Staff</label>
+                                    <select name="subjectStaff_name" class="form-control">
+                                        <option hidden>Staff</option>
+                                        {% for staff in staffs %}
+                                            <option value="{{ staff.staff_name.username }}">
+                                                {{ staff.staff_name.first_name|capfirst }} {{ staff.staff_name.middle_name|capfirst }} {{ staff.staff_name.last_name|capfirst }} currently managing 
+                                                ({% for class in staff.class_managed.all %}
+                                                    {{ class.name }}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %})
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="col-12">
+                            <button type="submit" id="submitBtn" class="btn btn-primary" style="display:none;">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var actionSelect = document.getElementById('actionSelect');
+        var assignToClassDiv = document.getElementById('AssignToClass');
+        var assignToSubjectDiv = document.getElementById('AssignToSubject');
+        var submitBtn = document.getElementById('submitBtn');
+
+        // Hide both sections and the submit button initially
+        function resetForm() {
+            assignToClassDiv.style.display = 'none';
+            assignToSubjectDiv.style.display = 'none';
+            submitBtn.style.display = 'none';
+        }
+
+        actionSelect.addEventListener('change', function() {
+            resetForm();
+            
+            // Show the appropriate section based on the selected action
+            if (actionSelect.value === 'AssignToClass') {
+                assignToClassDiv.style.display = 'block';
+                submitBtn.style.display = 'block';
+            } else if (actionSelect.value === 'AssignToSubject') {
+                assignToSubjectDiv.style.display = 'block';
+                submitBtn.style.display = 'block';
+            }
+        });
+    });
+</script>
+
+{% endblock content %}

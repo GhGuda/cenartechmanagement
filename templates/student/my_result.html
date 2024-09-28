@@ -1,0 +1,280 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Sheet</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <link rel="shortcut icon" href="{% static 'assets/img/favicon.png' %}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: auto;
+        }
+        .header, .footer, .remarks {
+            width: 100%;
+            border: 1px solid #000;
+            margin-bottom: 8px;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .header div, .footer div, .remarks div {
+            display: inline-block;
+            width: 80%;
+            box-sizing: border-box;
+            margin-bottom: 5px;
+        }
+    
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 6px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .footer {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .footer div {
+            width: 100%;
+        }
+        .remarks-table {
+            width: 100%;
+            border: 1px solid #000;
+            border-collapse: collapse;
+        }
+        .remarks-table td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+        }
+        .sign {
+            width: 60px;
+            height: 40px;
+        }
+        .subject {
+            text-align: start;
+        }
+        
+        .msg{
+            color:red;
+            font-weight: 900;
+        }
+        
+        
+        .containerr{
+            height: 100vh
+        }
+        @media (max-width: 768px) {
+            .header div, .footer div, .remarks div {
+                width: 100%;
+                margin-bottom: 10px;
+                margin-right: 0;
+            }
+            .remarks-table {
+                width: 100%;
+                display: block;
+                overflow-x: auto;
+            }
+            .remarks-table td {
+                white-space: nowrap;
+            }
+        }
+        .school-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .school-header img {
+            max-width: 100px;
+        }
+        .school-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .school-header p {
+            margin: 5px 0;
+        }
+        .school-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .school-info h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .school-info p {
+            margin: 0px 0;
+        }
+        .download-button {
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .download-button a {
+            background-color: #6db66f;
+            color: rgb(240, 237, 237);
+            padding: 5px 20px;
+            text-decoration: none;
+            font-size: 12px;
+            border-radius: 5px;
+        }
+        .download-button a:hover {
+            background-color: #45a049;
+        }
+        
+        .sign {
+            pointer-events: none; /* Disable mouse events for the image */
+        }
+    </style>
+</head>
+<body>
+    <div class="download-button">
+        <a href="{% url 'student_home' %}" class="btn btn-danger"><i class="fas fa-home"></i> Home</a>
+        <a href="?downloads=1" class="btn btn-success">
+            <i class="fas fa-download"></i> Download Report Card as PDF
+        </a>
+        {% for msg in messages %}
+        <p class="msg">{{ msg }}</p>
+        {% endfor %}
+    </div>
+
+
+    <script>
+        // Wait until the document is fully loaded
+        document.addEventListener("DOMContentLoaded", function() {
+            // Select all elements with the class 'msg'
+            var messages = document.querySelectorAll('.msg');
+            
+            // Loop through each element and set a timeout to hide it after a few seconds
+            messages.forEach(function(message) {
+                setTimeout(function() {
+                    message.style.display = 'none';
+                }, 3000); // 5000ms = 5 seconds
+            });
+        });
+    </script>
+    
+
+    {% for student, results in grouped_results.items %}
+    <div class="container">
+        <div class="school-header">
+            <img src="{% static 'assets/bcc.png' %}" alt="School Logo">
+            <div class="school-info">
+                <h1>BENEFIT BOYS ACADEMY</h1>
+                <p>FRIENDS WITH POWER</p>
+                <p>ZONGO LANE, NYANYANO ROAD KASOA</p>
+                <p>024-888-9999 / 050-999-0099</p>
+            </div>
+        </div>
+        <div class="header">
+            <div>NAME: {{ student.user.first_name|upper }} {{ student.user.middle_name|upper }} {{ student.user.last_name|upper }}</div>
+            <div>TERM: {{ results.0.term|upper }}</div>
+            <div>ACADEMIC YEAR: {{results.0.year}}</div>
+            <div>LEVEL: {{ results.0.previous_class|upper }}</div>
+            <div>OVERALL PROFICIENCY LEVEL: {{ student.overall_proficiency_level }}</div>
+            <div>VACATION DATE: N/A</div>
+            <div>REOPENING DATE: N/A</div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th rowspan="2">SUBJECT TITLE</th>
+                        <th>CLASS SCORE <br>(30%)</th>
+                        <th>EXAMS SCORE <br>(70%)</th>
+                        <th rowspan="2">TOTAL SCORE</th>
+                        <th rowspan="2">PROFICIENCY</th>
+                        <th rowspan="2">MEANING</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for res in results %}
+                    <tr>
+                        <td class="subject">{{ res.subject|upper }}</td>
+                        <td>{{ res.total_class_score|upper }}</td>
+                        <td>{{ res.exams_score|upper }}</td>
+                        <td>{{ res.total_score|upper }}</td>
+                        <td>{{ res.grade|upper }}</td>
+                        <td>{{ res.profi|upper }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="footer">
+            <div>ATTENDANCE: {{ student.attendance|upper }}</div>
+            <div>CONDUCT: {{ student.conduct |upper}}</div>
+            <div>CLASS TEACHER'S REMARKS: {{ student.remarks|upper }}</div>
+            <div>INTEREST: {{ student.interest|upper }}</div>
+            <div id="signature-container">
+                HEADTEACHER'S SIGNATURE: <img class="sign" src="{% static 'assets/signature.png' %}" alt="Headteacher's Signature">
+            </div>            
+        </div>
+        <div class="remarks">
+            <div>RANGE:</div>
+            <table class="remarks-table">
+                <tr>
+                    <td>MARKS</td>
+                    <td>80 - 100</td>
+                    <td>75 - 79</td>
+                    <td>70 - 74</td>
+                    <td>65 - 69</td>
+                    <td>0 - 64</td>
+                </tr>
+                <tr>
+                    <td>GRADE</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                    <td>4</td>
+                    <td>5</td>
+                </tr>
+                <tr>
+                    <td>MEANING</td>
+                    <td>Advance (A)</td>
+                    <td>Proficient (P)</td>
+                    <td>Approaching Proficiency (AP)</td>
+                    <td>Developing (D)</td>
+                    <td>Beginning (B)</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var signatureImage = document.querySelector('#signature-container img');
+    
+            // Prevent right-click context menu on the image
+            signatureImage.addEventListener('contextmenu', function (event) {
+                event.preventDefault();
+            });
+    
+            // Disable dragging the image
+            signatureImage.addEventListener('dragstart', function (event) {
+                event.preventDefault();
+            });
+        });
+    </script>
+    
+</body>
+</html>

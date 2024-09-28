@@ -1,0 +1,33 @@
+            {% csrf_token %}    
+                {% for msg in messages %}
+                    {% if msg.tags == 'error' %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong>{{msg}}</strong>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <strong>{{msg}}</strong>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                {% comment %} <script>
+                    // Wait until the document is fully loaded
+                    document.addEventListener("DOMContentLoaded", function() {
+                        // Select all elements with the class 'msg'
+                        var messages = document.querySelectorAll('.alert');
+                        
+                        // Loop through each element and set a timeout to hide it after a few seconds
+                        messages.forEach(function(message) {
+                            setTimeout(function() {
+                                message.style.display = 'none';
+                            }, 4500); // 5000ms = 5 seconds
+                        });
+                    });
+                </script> {% endcomment %}

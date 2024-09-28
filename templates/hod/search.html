@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if request.user.user_type == "HOD" %}
+
+
+    <div class="content container-fluid">
+        <div class="page-header">
+            <div class="row">
+            <div class="col-sm-12">
+                <h3 class="page-title">Showing results for "{{param}}"</h3>
+            </div>
+            </div>
+        </div>
+       <div class="row">
+          <div class="col-md-6 d-flex">
+             <div class="card flex-fill">
+                <div class="card-header">
+                    {% if students.count <= 1 %}
+                            <h5 class="card-title">Student ({{students.count}})</h5>
+                    {% else %}
+                            <h5 class="card-title">Students ({{students.count}})</h5>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                   <div class="table-responsive">
+                    {% if students %}
+                      <table class="table table-hover table-center">
+                         <thead class="thead-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Class/Form</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th class="text-right">Action</th>
+                             </tr>
+                         </thead>
+                         <tbody>
+                                {% for student in students reversed%}
+                                    {% if student.user.is_active == False %}
+                                    <tr style="text-decoration: 2px line-through; color:red;">
+                                    <td>
+                                        <h2 class="table-avatar" style="text-decoration: 2px line-through; color:red;">
+                                            <a href="{% url "student_details" student.user %}" class="avatar avatar-sm mr-2"><img class="avatar-img rounded-circle" src="{{student.user.profile_pic.url}}" alt="User Image"></a>
+                                            <a href="{% url "student_details" student.user %}">{{student.user.first_name|capfirst}} {{student.user.last_name|capfirst}}</a>
+                                        </h2>
+                                    </td>
+                                    <td>{{student.class_id.name}}</td>
+                                    <td>{{student.phone}}</td>
+                                    <td>{{student.user.email|truncatechars:20}}</td>
+
+                                    <td class="text-right">
+                                        <div class="actions">
+                                        <a href="{% url "student_details" student.user.username %}" class="btn btn-sm bg-success-light mr-2">
+                                        <i class="fas fa-user"></i>
+                                        </a>
+                                        <a class="btn btn-sm bg-success">DELETED</a>
+                                        </div>
+                                    </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr >
+                                        <td>
+                                            <h2 class="table-avatar">
+                                                <a href="{% url "student_details" student.user %}" class="avatar avatar-sm mr-2"><img class="avatar-img rounded-circle" src="{{student.user.profile_pic.url}}" alt="User Image"></a>
+                                                <a href="{% url "student_details" student.user %}">{{student.user.first_name|capfirst}} {{student.user.last_name|capfirst}}</a>
+                                            </h2>
+                                        </td>
+                                        <td>{{student.class_id.name}}</td>
+                                        <td>{{student.phone}}</td>
+                                        <td>{{student.user.email|truncatechars:20}}</td>
+    
+                                        <td class="text-right">
+                                            <div class="actions">
+                                            <a href="{% url "student_details" student.user.username %}" class="btn btn-sm bg-success-light mr-2">
+                                            <i class="fas fa-user"></i>
+                                            </a>
+                                            </div>
+                                        </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                         </tbody>
+                      </table>
+                    {% else %}
+                        <p>No results found</p>
+                    {% endif %}
+                   </div>
+                </div>
+             </div>
+          </div>
+          <div class="col-md-6 d-flex">
+             <div class="card flex-fill">
+                <div class="card-header">
+                    {% if staffs.count <= 1 %}
+                        <h5 class="card-title">Staff ({{staffs.count}})</h5>
+                   {% else %}
+                        <h5 class="card-title">Staffs ({{staffs.count}})</h5>
+                   {% endif %}
+                </div>
+                <div class="card-body">
+                   <div class="table-responsive">
+                    {% if staffs %}
+                    <table id="table_id" class="table table-hover table-center mb-0">
+                    
+                        <thead>
+                        <tr>
+                        <th>Class/Form Managing</th>
+                        <th>Name</th>
+                        <th>Mobile Number</th>
+                        <th>Address</th>
+                        
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for staff in staffs %}
+                        <tr>
+                        <td>
+                            {% for class in staff.class_managed.all %}
+                                {{ class.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                        <h2 class="table-avatar">
+                        <a href="{% url "view_staff_details" staff.staff_name.username %}" class="avatar avatar-sm mr-2"><img class="avatar-img rounded-circle" src="{{staff.staff_name.profile_pic.url}}" alt="User Image"></a>
+                        <a href="{% url "view_staff_details" staff.staff_name.username %}">{{staff.staff_name.first_name|capfirst}} {{staff.staff_name.last_name|capfirst}}</a>
+                        </h2>
+                        </td>
+                        <td>{{staff.phone}}</td>
+                        <td>{{staff.address}}</td>
+
+                        </tr>
+                        {% endfor %}
+                        
+                        </tbody>
+                        </table>
+                    {% else %}
+                        {% comment %} <h5 class="page-title"><span>No Staff</span></h5> {% endcomment %}
+                        <p>No staff results found</p>
+                    {% endif %}
+                   </div>
+                </div>
+             </div>
+          </div>
+       </div>
+    </div>
+
+{% endif %}
+{% endblock content %}

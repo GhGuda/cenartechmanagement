@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if request.user.user_type == "HOD" %}
+<div class="page-header">
+    <div class="row align-items-center">
+       <div class="col">
+          <h3 class="page-title">Edit Student</h3>
+          <ul class="breadcrumb">
+             <li class="breadcrumb-item"><a href="{% url "view_student" %}">Students</a></li>
+             <li class="breadcrumb-item active">{{student.user|capfirst}}</li>
+          </ul>
+       </div>
+    </div>
+ </div>
+ <div class="row">
+    <div class="col-sm-12">
+       <div class="card">
+          <div class="card-body">
+             <form method="POST" enctype="multipart/form-data">
+                {% include "includes/messages.html" %}
+                <div class="row">
+                   <div class="col-12">
+                      <h5 class="form-title"><span>Student Information</span></h5>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>First Name</label>
+                         <input type="text" name="fname" value="{{student.user.first_name}}" class="form-control" placeholder="Emmanuell">
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Middle Name(s)</label>
+                         <input type="text" name="mname" value="{{student.user.middle_name}}" class="form-control" placeholder="Yaw">
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Last Name</label>
+                         <input type="text" name="lname" value="{{student.user.last_name}}" class="form-control" placeholder="Narh">
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Username</label>
+                         <input type="text" disabled value="{{student.user}}" name="username" class="form-control" placeholder="Emma">
+                      </div>
+                   </div>
+                   
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                        <label>Gender, Currently "{{student.gender|capfirst}}" </label>
+                        <select name="gender"  class="form-control">
+                           <option value="" hidden>Select Gender</option>
+                           <option value="Male">Male</option>
+                           <option value="Female">Female</option>
+                       </select>
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Date of Birth</label>
+                         <div>
+                            <input type="date" value="{{student.dob}}" name="dob" class="form-control">
+                         </div>
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Class/Form, Currently in "{{student.class_id.name}}"</label>
+                         <select name="class"  class="form-control">
+                           <option hidden>Select Class/Form</option>
+                           {% for class in class %}
+                               <option value={{class.id}}>{{class.name}}</option>
+                           {% endfor %}
+                       </select>
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Religion</label>
+                         <input type="text" value="{{student.religion}}" name="religion" class="form-control" placeholder="Christian">
+                      </div>
+                   </div>
+                   
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Student Number</label>
+                         <input type="text" value="{{student.phone}}" name="phone" class="form-control" placeholder="0244441861">
+                      </div>
+                   </div>
+
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Email</label>
+                         <input type="email" value="{{student.user.email}}" name="email" class="form-control" placeholder="student@gmail.com">
+                      </div>
+                   </div>
+
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Student's Password</label>
+                         <input type="text" value="" name="student_password" class="form-control" placeholder="********">
+                      </div>
+                   </div>
+                   
+                   <div class="col-12">
+                      <h5 class="form-title"><span>Parent Information</span></h5>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Father's Name</label>
+                         <input type="text" value="{{student.father_name}}" name="father_name" class="form-control" placeholder="Mr.Isaac">
+                      </div>
+                   </div>
+                   
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Father's Mobile</label>
+                         <input type="text" name="father_number" value="{{student.father_number}}" class="form-control" placeholder="0244441861">
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Father's Email</label>
+                         <input type="email" name="father_email" value="{{student.father_email}}" class="form-control" placeholder="isaac@gmail.com">
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Mother's Name</label>
+                         <input type="text" name="mother_name" value="{{student.mother_name}}" class="form-control" placeholder="Miss. Elizabeth">
+                      </div>
+                   </div>
+                   
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Mother's Mobile</label>
+                         <input type="text" name="mother_number" value="{{student.mother_number}}" class="form-control" placeholder="0244441861">
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Mother's Email</label>
+                         <input type="email"name="mother_email" value="{{student.mother_email}}" class="form-control" placeholder="eli@gmail.com">
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Student Present Address</label>
+                         <textarea name="address1" value="" class="form-control" placeholder="Kasoa Kakraba">{{student.address1}}</textarea>
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-6">
+                      <div class="form-group">
+                         <label>Student Permanent Address</label>
+                         <textarea name="address2" value="" class="form-control" placeholder="Kasoa Nyanyanu">{{student.address2}}</textarea>
+                      </div>
+                   </div>
+                   <div class="col-12">
+                      <button type="submit" class="btn btn-primary">Edit student</button>
+                   </div>
+                </div>
+             </form>
+          </div>
+       </div>
+    </div>
+ </div>
+ {% endif %}
+{% endblock content %}

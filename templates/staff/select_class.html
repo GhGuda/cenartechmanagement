@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if request.user.user_type == "STAFF" %}
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-12">
+            {% if staff.gender == "male" %}
+            <h3 class="page-title">Welcome Sir {{staff.staff_name.first_name|capfirst}} {{staff.staff_name.last_name|capfirst}}!</h3>
+            {% else %}
+            <h3 class="page-title">Welcome Madam {{staff.staff_name.first_name|capfirst}} {{staff.staff_name.last_name|capfirst}}!</h3>
+            {% endif %}
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item active">Teacher Dashboard</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% if staff.stafftype == "Class Manager" %}
+{% if action is None %}
+<div class="row">
+   <div class="col-sm-12">
+      <div class="card">
+         <div class="card-body">
+            <form method="POST" action="?action=get_students" enctype="multipart/form-data">
+               {% csrf_token %}
+               {% include "includes/messages.html" %}
+               <div class="row">
+                  <div class="col-12">
+                     <h5 class="form-title"><span>Select Class/Form Managing</span></h5>
+                  </div>
+                  <div class="col-12 col-sm-12">
+                     <div class="form-group">
+                        <label>Select Action</label>
+                        <select id="action-select" name="class_manager_action" class="form-control" required>
+                          <option hidden>Select Action</option>
+                          <option value="class-managing">Class I Am Managing</option>
+                          <option value="subject-class">View Students In My Subject Class</option>
+                        </select>
+                     </div>
+                  </div>
+                  
+                  <!-- Class Managing Section -->
+                  <div id="class-managing-section" style="display:none; width:100%">
+                     <div class="col-12 col-sm-12">
+                        <div class="form-group">
+                           <label>Class/Form</label>
+                           <select name="class_form_manage" class="form-control">
+                              <option hidden>Select Class/Form</option>
+                              {% for class in class_form %}
+                                    <option value="{{ class.id }}">{{ class.name }}</option>
+                              {% endfor %}
+                           </select>
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Subject Class Section -->
+                  <div id="subject-class-section" style="display:none; width:100%">
+                     <div class="col-12 col-sm-12">
+                        <div class="form-group">
+                           <label>Class/Form</label>
+                           <select name="class_form_subject" class="form-control">
+                              <option hidden>Select Class/Form</option>
+                              {% for class in staff_sub_class %}
+                                    <option value="{{ class }}">{{ class}}</option>
+                              {% endfor %}
+                           </select>
+                        </div>
+                     </div>
+                     <div class="col-12 col-sm-12">
+                        <div class="form-group">
+                           <label>Subject</label>
+                           <select name="subject" class="form-control">
+                              <option hidden>Select Subject</option>
+                              {% for sub in staff_sub %}
+                                    <option value="{{ sub }}">{{ sub }}</option>
+                              {% endfor %}
+                           </select>
+                        </div>
+                     </div>
+                  </div>
+                  <!-- Submit Button -->
+                  <div class="col-12">
+                     <button type="submit" id="submit-button" class="btn btn-primary" style="display: none;">Fetch Students</button>
+                  </div>
+               </div>
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+{% endif %}
+{% else %}
+{% if action is None %}
+<div class="row">
+    <div class="col-sm-12">
+       <div class="card">
+          <div class="card-body">
+             <form method="POST" action="?action=get_students" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% include "includes/messages.html" %}
+                <div class="row">
+                   <div class="col-12">
+                      <h5 class="form-title"><span>Select Class/Form To Proceed</span></h5>
+                   </div>
+      
+                   <div class="col-12 col-sm-12">
+                      <div class="form-group">
+                         <label>Class/Form</label>
+                         <select name="class" class="form-control" required>
+                            <option hidden>Select Class/Form</option>
+                            {% for class in staff_sub_class %}
+                                <option value="{{ class }}">{{ class }}</option>
+                            {% endfor %}
+                         </select>
+                      </div>
+                   </div>
+                   <div class="col-12 col-sm-12">
+                      <div class="form-group">
+                         <label>Select Subject</label>
+                         <select name="subject" class="form-control" required>
+                            <option hidden>Subject</option>
+                            {% for sub in staff_sub %}
+                                <option value="{{ sub }}">{{ sub }}</option>
+                            {% endfor %}
+                         </select>
+                      </div>
+                   </div>
+                   <div class="col-12">
+                      <button type="submit" class="btn btn-primary">Fetch Students</button>
+                   </div>
+                </div>
+             </form>
+          </div>
+       </div>
+    </div>
+</div>
+{% endif %}
+{% endif %}
+{% endif %}
+
+<!-- JavaScript to handle show/hide based on dropdown selection -->
+<script>
+   document.addEventListener("DOMContentLoaded", function() {
+       const actionSelect = document.getElementById('action-select');
+       const classManagingSection = document.getElementById('class-managing-section');
+       const subjectClassSection = document.getElementById('subject-class-section');
+       const submitButton = document.getElementById('submit-button');
+       
+       // Function to toggle the submit button
+       function toggleSubmitButton() {
+           const selectedValue = actionSelect.value;
+           if (selectedValue === 'class-managing' || selectedValue === 'subject-class') {
+               submitButton.style.display = 'block';
+           } else {
+               submitButton.style.display = 'none';
+           }
+       }
+
+       // Hide/Show sections based on selected option
+       actionSelect.addEventListener('change', function() {
+           const selectedValue = this.value;
+           
+           // Hide both sections initially
+           classManagingSection.style.display = 'none';
+           subjectClassSection.style.display = 'none';
+           
+           // Show the relevant section based on selected action
+           if (selectedValue === 'class-managing') {
+               classManagingSection.style.display = 'block';
+           } else if (selectedValue === 'subject-class') {
+               subjectClassSection.style.display = 'block';
+           }
+
+           // Toggle submit button visibility
+           toggleSubmitButton();
+       });
+
+       // Hide submit button initially
+       toggleSubmitButton();
+   });
+</script>
+{% endblock content %}
+
+

@@ -1,0 +1,78 @@
+{% load static %}
+{% load active_link_tags %}
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-inner slimscroll">
+       <div id="sidebar-menu" class="sidebar-menu">
+         {% if user.user_type == "HOD" %}
+          <ul>
+             <li class="menu-title">
+                <span>Main Menu</span>
+             </li>
+            <li class="{% active_link 'hod_home' 'active' %}">
+               <a href="{% url "hod_home" %}"><i class="fas fa-holly-berry"></i> <span>Dashboard</span></a>
+            </li>
+             <li class="submenu {% active_link 'add_student' 'active' %} {% active_link 'view_student' 'active' %}">
+                <a href="#"><i class="fas fa-user-graduate"></i> <span> Students</span> <span class="menu-arrow"></span></a>
+                <ul>
+                   <li><a href="{% url "add_student" %}">Add Student</a></li>
+                   <li><a href="{% url "view_student" %}">View Student</a></li>
+                </ul>
+             </li>
+             <li class="submenu {% active_link 'add_staff' 'active' %} {% active_link 'view_staffs' 'active' %}">
+                <a href="#"><i class="fas fa-chalkboard-teacher"></i> <span> Staffs</span> <span class="menu-arrow"></span></a>
+                <ul>
+                   <li><a href="{% url "add_staff" %}">Add Staff</a></li>
+                   <li><a href="{% url "view_staffs" %}"> View Staff </a></li>
+                </ul>
+             </li>
+             <li class=" {% active_link 'assign_staffs' 'active' %}">
+                <a href="{% url "assign_staffs" %}"><i class="fas fa-plus-circle"></i> <span> Assign Staff</span></a>
+             </li>
+             <li class=" {% active_link 'add_term' 'active' %}">
+                <a href="{% url "add_term" %}"><i class="far fa-calendar"></i> <span> Change Term</span></a>
+             </li>
+             <li>
+               <a href="/doLogout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+            </li>
+          </ul>
+          {% elif user.user_type == "STAFF" %}
+          <ul>
+            <li class="menu-title">
+               <span>Main Menu</span>
+            </li>
+            <li class="{% active_link 'staff_home' 'active' %}">
+               <a href="{% url "staff_home" %}"><i class="fas fa-book-reader"></i> <span>Dashboard</span></a>
+            </li>
+            {% if staff.stafftype == "Class Manager" %}
+               <li class="{% active_link 'see_results' 'active' %}">
+                  <a href="{% url 'see_results' %}"><i class="fas fa-poll-h"></i> <span>View Report Cards</span></a>
+               </li>
+            {% endif %}
+
+           <li>
+            <a href="/doLogout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+            </li>
+          </ul>
+          {% else %}
+
+
+          <ul>
+            <li class="menu-title">
+               <span>Main Menu</span>
+            </li>
+           <li class="{% active_link 'student_home' 'active' %}">
+              <a href="{% url "student_home" %}"><i class="fas fa-holly-berry"></i> <span>Dashboard</span></a>
+           </li>
+         
+           <li class="{% active_link 'display_student_results' 'active' %}">
+              <a href="{% url "display_student_results" %}"><i class="fas fa-poll-h"></i> <span>View Result</span></a>
+           </li>
+           <li>
+            <a href="/doLogout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+            </li>
+          </ul>
+
+          {% endif %}
+       </div>
+    </div>
+ </div>

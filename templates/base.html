@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+   {% load static %}
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+      <title>GudaSchool</title>
+      <link rel="shortcut icon" href="{% static 'assets/img/favicon.png' %}">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;0,700;1,400&amp;display=swap">
+      <link rel="stylesheet" href="{% static 'assets/plugins/bootstrap/css/bootstrap.min.css' %}">
+      <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/fontawesome.min.css' %}">
+      <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/all.min.css' %}">
+      <link rel="stylesheet" href="{% static 'assets/plugins/datatables/datatables.min.css' %}">
+      <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+
+   </head>
+   <body>
+    
+    <div class="main-wrapper">
+      {% include "includes/header.html" %}
+      {% include "includes/sidebar.html" %}
+      <div class="page-wrapper">
+        <div class="content container-fluid">
+           <p id="network-status">Connecting network...📡</p>
+            {% block content %}
+            {% endblock content %}
+        </div>
+        {% include "includes/footer.html" %}
+      </div>
+    </div>
+
+
+
+
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/apexchart/apexcharts.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/apexchart/chart-data.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+
+    <script src="{% static 'assets/plugins/datatables/datatables.min.js'%}"></script>
+    <script src="https://cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js"></script>
+   <script type="text/javascript">
+      $(document).ready(function () {
+         $('#table_id').dataTable();
+      });
+
+
+
+
+
+
+      $(document).ready(function() {
+
+     
+     
+   
+
+	// Bar chart
+	
+	if ($('#stud_gender').length > 0) {
+	var optionsBar = {
+		chart: {
+			type: 'bar',
+			height: 350,
+			width: '100%',
+			stacked: true,
+			toolbar: {
+				show: false
+			},
+		},
+		dataLabels: {
+			enabled: false
+		},
+		plotOptions: {
+			bar: {
+				columnWidth: '45%',
+			}
+		},
+		series: [{
+			name: "Boys",
+			color: '#fdbb38',
+			data: [{{student_gender_male}}],
+		}, {
+			name: "Girls",
+			color: '#19affb',
+			data: [{{student_gender_female}}],
+		}],
+		labels: [{{current_year}}],
+		xaxis: {
+			labels: {
+				show: false
+			},
+			axisBorder: {
+				show: false
+			},
+			axisTicks: {
+				show: false
+			},
+		},
+		yaxis: {
+			axisBorder: {
+				show: false
+			},
+			axisTicks: {
+				show: false
+			},
+			labels: {
+				style: {
+					colors: '#777'
+				}
+			}
+		},
+		title: {
+			text: 'Students Gender Chart',
+			align: 'left',
+			style: {
+				fontSize: '18px'
+			}
+		}
+
+	}
+  
+	var chartBar = new ApexCharts(document.querySelector('#stud_gender'), optionsBar);
+	chartBar.render();
+	}
+  
+  
+  
+});
+
+
+
+      
+  var categories = [];
+  var seriesData = [];
+
+  {% for item in yearly_passed_students %}
+  categories.push("{{ item.year }}");
+  seriesData.push({{ item.number }});
+  {% endfor %}
+
+  var options = {
+    series: [{
+      name: 'Students who left',
+      data: seriesData
+    }],
+    chart: {
+      height: 350,
+      type: 'bar',
+    },
+    plotOptions: {
+      bar: {
+        borderRadius: 10,
+        dataLabels: {
+          position: 'top', // top, center, bottom
+        },
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: function (val) {
+        return val;
+      },
+      offsetY: -20,
+      style: {
+        fontSize: '12px',
+        colors: ["#304758"]
+      }
+    },
+    xaxis: {
+      categories: categories,
+      position: 'top',
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
+      },
+      crosshairs: {
+        fill: {
+          type: 'gradient',
+          gradient: {
+            colorFrom: '#D8E3F0',
+            colorTo: '#BED1E6',
+            stops: [0, 100],
+            opacityFrom: 0.4,
+            opacityTo: 0.5,
+          }
+        }
+      },
+      tooltip: {
+        enabled: true,
+      }
+    },
+    yaxis: {
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false,
+      },
+      labels: {
+        show: false,
+        formatter: function (val) {
+          return val;
+        }
+      }
+    },
+    title: {
+      text: 'Yearly Depreciation Chart',
+      align: 'left'
+    }
+  };
+
+  var chart = new ApexCharts(document.querySelector("#chart"), options);
+  chart.render();
+
+
+
+
+
+
+
+
+
+
+  
+  var categoriess = [];
+  var seriesDatas = [];
+
+  {% for item in admitted_students %}
+  categoriess.push("{{ item.year }}");
+  seriesDatas.push({{ item.number }});
+  {% endfor %}  
+  var options = {
+    series: [{
+      name: "Students",
+      data: seriesDatas
+  }],
+    chart: {
+    height: 350,
+    type: 'line',
+    zoom: {
+      enabled: false
+    }
+  },
+  dataLabels: {
+    enabled: false
+  },
+  stroke: {
+    curve: 'straight'
+  },
+  title: {
+    text: 'Yearly Admissions Chart',
+    align: 'left'
+  },
+  grid: {
+    row: {
+      colors: ['#f3f3f3', 'transparent'],
+      opacity: 0.5
+    },
+  },
+  xaxis: {
+    categories: categoriess,
+  }
+  };
+
+  var chart = new ApexCharts(document.querySelector("#admitted"), options);
+  chart.render();
+
+
+
+
+
+
+
+  function updateNetworkStatus(status) {
+    const networkStatusElement = document.getElementById('network-status');
+
+    if (status === 'active') {
+        networkStatusElement.textContent = '🟢 You are online';
+        networkStatusElement.className = 'active';
+    } else if (status === 'poor') {
+        networkStatusElement.textContent = '🟡 Network is poor ⚠️';
+        networkStatusElement.className = 'poor';
+    } else if (status === 'inactive') {
+        networkStatusElement.textContent = '🔴 You are offline';
+        networkStatusElement.className = 'inactive';
+    }
+}
+
+function checkNetworkStatus() {
+    if (navigator.onLine) {
+        const img = new Image();
+        img.src = "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png";
+
+        img.onload = () => updateNetworkStatus('active');
+
+        img.onerror = () => {
+            updateNetworkStatus('poor');
+        };
+
+        setTimeout(() => {
+            if (!img.complete) {
+                updateNetworkStatus('poor');
+            }
+        }, 3000); // 3 seconds to determine if the connection is slow
+    } else {
+        updateNetworkStatus('inactive');
+    }
+}
+
+window.addEventListener('load', checkNetworkStatus);
+window.addEventListener('online', () => updateNetworkStatus('active'));
+window.addEventListener('offline', () => updateNetworkStatus('inactive'));
+
+  </script>
+
+   </body>
+</html>

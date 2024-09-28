@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if request.user.user_type == "STAFF" %}
+{% include "includes/messages.html" %}
+<div class="content container-fluid">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row">
+            <div class="col-sm-12">
+                {% if staff.gender == "male" %}
+                <h3 class="page-title">Welcome Sir {{staff.staff_name.first_name|capfirst}} {{staff.staff_name.last_name|capfirst}}!</h3>
+                {% else %}
+                <h3 class="page-title">Welcome Madam {{staff.staff_name.first_name|capfirst}} {{staff.staff_name.last_name|capfirst}}!</h3>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row">
+        {% if is_class_manager %}
+        <div class="col-xl-3 col-sm-6 col-12 d-flex">
+            <div class="card bg-five w-100">
+                <div class="card-body">
+                    <div class="db-widgets d-flex justify-content-between align-items-center">
+                        <div class="db-icon">
+                            <i class="fas fa-chalkboard"></i>
+                        </div>
+                        <div class="db-info">
+                            <h3>{{student_class.name}}</h3>
+                            <h6>Class/Form Managing</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-xl-3 col-sm-6 col-12 d-flex">
+            <div class="card bg-five w-100">
+                <div class="card-body">
+                    <div class="db-widgets d-flex justify-content-between align-items-center">
+                        <div class="db-icon">
+                            <i class="fas fa-chalkboard"></i>
+                        </div>
+                        <div class="db-info">
+                            <h3>{{student_class.name}}</h3>
+                            <h6>Class/Form Teaching</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if is_subject %}
+        <div class="col-xl-3 col-sm-6 col-12 d-flex">
+            <div class="card bg-two w-100">
+               <div class="card-body">
+                  <div class="db-widgets d-flex justify-content-between align-items-center">
+                     <div class="db-icon">
+                        <i class="fas fa-book"></i>
+                     </div>
+                     <div class="db-info">
+                        <h3>{{subject.subject_name}}</h3>
+                        <h6>Subject</h6>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         {% endif %}
+        <div class="col-xl-3 col-sm-6 col-12 d-flex">
+            <div class="card bg-six w-100">
+                <div class="card-body">
+                    <div class="db-widgets d-flex justify-content-between align-items-center">
+                        <div class="db-icon">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <div class="db-info">
+                            <h3>{{students.count}}</h3>
+                            {% if students.count == 1 %}
+                            <h6>Total Student</h6>
+                            {% else %}
+                            <h6>Total Students</h6>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-sm-6 col-12 d-flex">
+            <div class="card bg-one w-100">
+               <div class="card-body">
+                  <div class="db-widgets d-flex justify-content-between align-items-center">
+                     <div class="db-icon">
+                        <i class="far fa-calendar"></i>
+                     </div>
+                     <div class="db-info">
+                        <h3>Term {{term.term}}</h3>
+                        
+                        <h6>Current Term</h6>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+    </div>
+
+    <!-- Upcoming Lessons and Progress -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card flex-fill w-100">
+                <div class="card-header">
+                    <div class="row align-items-center" style="display:flex; justify-content:space-between">
+                        <div class="col-6">
+                            {% if students.count == 1 %}
+                            <h5 class="card-title">Student List</h5>
+                            {% else %}
+                            <h5 class="card-title">Students List</h5>
+                            {% endif %}
+                        </div>
+
+                        {% if is_class_manager %}
+                            {% if students %}
+                            <div class="text-center">
+                                <a id="sendAllResults" href="{% url 'send_all_results' student_class %}" style="background:green; border-radius:5px; padding:.2rem; color:white;">
+                                    Send All Results
+                                </a>
+                                
+                            </div>
+                        
+                                
+                                <script>
+                                    document.getElementById("sendAllResults").addEventListener("click", function() {
+                                        this.textContent = "Sending...⬆️";
+                                        this.style.background = "gray";
+                                        this.style.pointerEvents = "none";
+                                        this.style.opacity = "0.6"; 
+                                    });
+                                </script>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="pt-3 pb-3">
+                    <div class="table-responsive lesson">
+                        <table id="table_id" class="table table-hover table-center mb-0">
+                            <thead>
+                               <tr>
+                                  <th>Name</th>
+                                  <th>Class/Form</th>
+                                  <th>Gender</th>
+                                  <th>Email</th>
+                                  <th class="text-right">Action</th>
+                               </tr>
+                            </thead>
+                            <tbody>
+                              {% for student in students %}
+                                 <tr>
+                                    <td>
+                                       <h2 class="table-avatar">
+                                          <a class="avatar avatar-sm mr-2"><img class="avatar-img rounded-circle" src="{{student.user.profile_pic.url}}" alt="User Image"></a>
+                                         
+                                          <b>{{student.user.first_name|capfirst}} {{student.user.last_name|capfirst}}</b>
+                                       </h2>
+                                    </td>
+                                    <td>{{student.class_id.name}}</td>
+                                    <td>{{student.gender}}</td>
+                                    <td>{{student.user.email}}</td>
+                                    <td class="text-right">
+                                       <div class="actions">
+                                          <a href="{% url 'add_marks' student.user %}" class="btn btn-sm bg-danger-light">
+                                            Add Marks  
+                                          </a>
+                                          {% comment %} {% if is_class_manager %}
+                                          <!-- Individual Send Result Links -->
+                                          <a href="{% url 'single_card' student.user %}" id="sendAResult"  style="color:white" class="btn btn-success send-result" data-student-id="{{student.id}}">
+                                            Send Result
+                                          </a>
+                                          {% endif %} {% endcomment %}
+                                       </div>
+                                       
+                                    </td>
+                                 </tr>
+                              {% endfor %}
+                            </tbody>
+                         </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Select all elements with the class 'send-result'
+    const sendResultButtons = document.querySelectorAll('.send-result');
+
+    // Loop through all selected elements and add the click event listener
+    sendResultButtons.forEach(function(button) {
+        button.addEventListener("click", function() {
+            this.textContent = "Sending...⬆️";
+            this.style.background = "gray";
+            this.style.pointerEvents = "none";
+            this.style.opacity = "0.6"; 
+        });
+    });
+</script>
+{% endif %}
+{% endblock content %}
+
+    

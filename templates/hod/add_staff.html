@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if request.user.user_type == "HOD" %}
+<style>
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  
+    input[type="number"] {
+      -moz-appearance: textfield; /* Firefox */
+      appearance: textfield;
+    }
+  </style>
+
+
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">Add Staff</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url "view_staffs" %}">Staffs</a></li>
+                <li class="breadcrumb-item active">Add Staff</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% include "includes/messages.html" %}
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="form-title"><span>Basic Details</span></h5>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" name="fname" value="{{ entered_data.fname|default_if_none:'' }}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Middle Name</label>
+                                <input type="text" name="mname" value="{{ entered_data.mname|default_if_none:'' }}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" name="lname" value="{{ entered_data.lname|default_if_none:'' }}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Gender</label>
+                                <select name="gender" class="form-control" required>
+                                    <option hidden>Gender</option>
+                                    <option value="Male" {% if entered_data.gender == "Male" %}selected{% endif %}>Male</option>
+                                    <option value="Female" {% if entered_data.gender == "Female" %}selected{% endif %}>Female</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Staff Type</label>
+                                <select name="staff_type" id="staffType" class="form-control" required>
+                                    <option hidden>Staff Type</option>
+                                    <option value="Class Manager" {% if entered_data.staff_type == "Class Manager" %}selected{% endif %}>Class Manager</option>
+                                    <option value="Subject Teacher" {% if entered_data.staff_type == "Subject Teacher" %}selected{% endif %}>Subject Teacher</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-sm-6" id="classToTeachDiv" style="display: none;">
+                            <div class="form-group">
+                                <label>Class/Form to Teach</label>
+                                <select name="class_form_teach" class="form-control">
+                                    <option hidden>Select Class/Form</option>
+                                    {% for class_form in class %}
+                                    <option value="{{ class_form.name }}" {% if entered_data.class_form_teach == class_form.name %}selected{% endif %}>{{ class_form.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-sm-6" id="subjectToTeachDiv" style="display: none;">
+                            <div class="form-group">
+                                <label>Subject to Teach</label>
+                                <select name="subject_teach" class="form-control">
+                                    <option hidden>Select Subject</option>
+                                    {% for subjects in subject %}
+                                    <option value="{{ subjects.subject_name }}" {% if entered_data.subject_teach == subjects.subject_name %}selected{% endif %}>{{ subjects.subject_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-sm-6" id="classToManageDiv" style="display: none;">
+                            <div class="form-group">
+                                <label>Class/Form to Be Managed</label>
+                                <select name="class_form" class="form-control">
+                                    <option hidden>Select Class/Form</option>
+                                    {% for class_form in class %}
+                                    <option value="{{ class_form.name }}" {% if entered_data.class_form == class_form.name %}selected{% endif %}>{{ class_form.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Mobile</label>
+                                <input type="number" name="phone" value="{{ entered_data.phone|default_if_none:'' }}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Qualification(s)</label>
+                                <textarea name="qualification" class="form-control" placeholder="B.E.C.E Cert, WASSCE Cert.....">{{ entered_data.qualification|default_if_none:'' }}</textarea>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Experience(s)</label>
+                                <textarea name="experience" class="form-control" placeholder="Experience">{{ entered_data.experience|default_if_none:'' }}</textarea>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Staff Image</label>
+                                <input type="file" name="profile_pic" accept="image/*" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Religion</label>
+                                <input type="text" name="religion" value="{{ entered_data.religion|default_if_none:'' }}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <h5 class="form-title"><span>Login Details</span></h5>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Username</label>
+                                <input type="text" name="username" value="{{ entered_data.username|default_if_none:'' }}" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Email ID</label>
+                                <input type="email" name="email" value="{{ entered_data.email|default_if_none:'' }}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="text" name="password1" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Repeat Password</label>
+                                <input type="text" name="password2" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <h5 class="form-title"><span>Address</span></h5>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label>Address</label>
+                                <input type="text" name="address" value="{{ entered_data.address|default_if_none:'' }}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>City</label>
+                                <input type="text" name="city" value="{{ entered_data.city|default_if_none:'' }}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>State/Region</label>
+                                <input type="text" name="state" value="{{ entered_data.state|default_if_none:'' }}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Zip Code</label>
+                                <input type="text" name="zipcode" value="{{ entered_data.zipcode|default_if_none:'' }}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Country</label>
+                                <input type="text" name="country" value="{{ entered_data.country|default_if_none:'' }}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">Add Staff</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const staffTypeSelect = document.querySelector('select[name="staff_type"]');
+        const classToTeachDiv = document.getElementById('classToTeachDiv');
+        const subjectToTeachDiv = document.getElementById('subjectToTeachDiv');
+        const classToManageDiv = document.getElementById('classToManageDiv');
+
+        function toggleFields() {
+            const staffType = staffTypeSelect.value;
+
+            // Hide all by default
+            classToTeachDiv.style.display = 'none';
+            subjectToTeachDiv.style.display = 'none';
+            classToManageDiv.style.display = 'none';
+
+            if (staffType === 'Class Manager') {
+                classToManageDiv.style.display = 'block';
+                subjectToTeachDiv.style.display = 'block';
+            } else if (staffType === 'Subject Teacher') {
+                classToTeachDiv.style.display = 'block';
+                subjectToTeachDiv.style.display = 'block';
+            }
+        }
+
+        toggleFields();
+
+        staffTypeSelect.addEventListener('change', toggleFields);
+    });
+</script>
+{% endblock content %}

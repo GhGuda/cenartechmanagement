@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if request.user.user_type == "HOD" %}
+<div class="page-header">
+    <div class="row align-items-center">
+    <div class="col">
+    <h3 class="page-title">Staffs</h3>
+    <ul class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url "hod_home" %}">Dashboard</a></li>
+    <li class="breadcrumb-item active">Staffs</li>
+    </ul>
+    </div>
+    <div class="col-auto text-right float-right ml-auto">
+    <a href="{% url "add_staff" %}" class="btn btn-primary"><i class="fas fa-plus"></i></a>
+    </div>
+    </div>
+    </div>
+    
+    <div class="row">
+    <div class="col-sm-12">
+    <div class="card card-table">
+    <div class="card-body">
+    <div class="table-responsive">
+    <table id="table_id" class="table table-hover table-center mb-0">
+    {% comment %} {% if staffs %} {% endcomment %}
+    {% include "includes/messages.html" %}
+
+    <thead>
+    <tr>
+    <th>Name</th>
+    <th>Class/Form Managing</th>
+    <th>Subjects</th>
+    <th>Mobile Number</th>
+    <th class="text-right">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for staff in staffs %}
+    <tr>
+    <td>
+        <h2 class="table-avatar">
+            <a href="{% url "view_staff_details" staff.staff_name.username %}" class="avatar avatar-sm mr-2"><img class="avatar-img rounded-circle" src="{{staff.staff_name.profile_pic.url}}" alt="User Image"></a>
+            <a href="{% url "view_staff_details" staff.staff_name.username %}">{{staff.staff_name.first_name|capfirst}} {{staff.staff_name.last_name|capfirst}}</a>
+        </h2>
+    </td>
+    <td>
+        {% if staff.stafftype == "Class Manager" %}
+            {% for class in staff.class_managed.all %}
+                C.M({{ class.name }}{% if not forloop.last %}, {% endif %})
+            {% endfor %}
+        {% else %}
+            Subject Teacher
+        {% endif %}
+    </td>
+
+    <td>
+        {% for sub in staff.subject_teacher_subject.all %}
+            {{ sub.subject_name }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    </td>
+    <td>{{staff.phone}}</td>
+    <td class="text-right">
+    <div class="actions">
+    <a href="{% url "edit_staff" staff.staff_name.username %}" class="btn btn-sm bg-success-light mr-2">
+    <i class="fas fa-pen"></i>
+    </a>
+    <a href="{% url "delete_staff" staff.staff_name.username %}" class="btn btn-sm bg-danger-light">
+    <i class="fas fa-trash"></i>
+    </a>
+    </div>
+    </td>
+    </tr>
+    {% endfor %}
+    
+    </tbody>
+    </table>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    {% endif %}
+{% endblock content %}

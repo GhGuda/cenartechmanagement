@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 class="page-title">Welcome {{ students.user.first_name|capfirst }} {{ students.user.last_name|capfirst }}!</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item active">Student Dashboard</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+       <div class="card">
+          <div class="card-body">
+             <form method="POST">
+                {% csrf_token %}
+                {% include "includes/messages.html" %}
+                <div class="row">
+                   <div class="col-12">
+                      <h5 class="form-title"><span>Select Class/Form To View Report Cards</span></h5>
+                   </div>
+                   <div class="col-12 col-sm-12">
+                      <div class="form-group">
+                         <label>Class/Form</label>
+                         <select name="class" id="classSelect" class="form-control" required>
+                            <option value="" hidden>Select Class/Form</option>
+                            {% for class in class_form %}
+                                <option value="{{ class.name }}">{{ class.name }}</option>
+                            {% endfor %}
+                         </select>
+                      </div>
+                   </div>
+
+
+                   <div class="col-12 col-sm-12" id="yearContainer" style="display: none;">
+                     <div class="form-group">
+                        <label>Year</label>
+                        <select name="year" id="classSelect" class="form-control" required>
+                           <option value="" hidden>Select Year</option>
+                              <option value="{{ student_year }}">{{ student_year }}</option>
+                        </select>
+                     </div>
+                  </div>
+
+
+                   <div class="col-12 col-sm-12" id="termContainer" style="display: none;">
+                      <div class="form-group">
+                         <label>Term</label>
+                         <select name="term" class="form-control" required>
+                            <option value="" hidden>Select Term</option>
+                            <option value="One">Term One</option>
+                            <option value="Two">Term Two</option>
+                            <option value="Three">Term Three</option>
+                         </select>
+                      </div>
+                   </div>
+
+                   <div class="col-12">
+                      <button type="submit" class="btn btn-primary">Fetch Report Cards</button>
+                   </div>
+                </div>
+             </form>
+          </div>
+       </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('classSelect').addEventListener('change', function() {
+    var termContainer = document.getElementById('termContainer');
+    var yearContainer = document.getElementById('yearContainer');
+    if (this.value) {
+        termContainer.style.display = 'block';
+    } else {
+        termContainer.style.display = 'none';
+    }
+
+    if (this.value) {
+        yearContainer.style.display = 'block';
+    } else {
+        yearContainer.style.display = 'none';
+    }
+});
+</script>
+{% endblock content %}

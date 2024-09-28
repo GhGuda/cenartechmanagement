@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if request.user.user_type == "HOD" %}
+<div class="page-header">
+    <div class="row align-items-center">
+       <div class="col">
+          <h3 class="page-title">Students</h3>
+          <ul class="breadcrumb">
+             <li class="breadcrumb-item"><a href="{% url "hod_home" %}">Dashboard</a></li>
+             <li class="breadcrumb-item active">Students</li>
+          </ul>
+       </div>
+       <div class="col-auto text-right float-right ml-auto">
+          <a href="{% url "add_student" %}" class="btn btn-primary"><i class="fas fa-plus"></i></a>
+       </div>
+    </div>
+ </div>
+ <div class="row">
+   {% include "includes/messages.html" %}
+    <div class="col-sm-12">
+       <div class="card card-table">
+          <div class="card-body">
+             <div class="table-responsive">
+                <table id="table_id" class="table table-hover table-center mb-0">
+                   <thead>
+                      <tr>
+                         <th>Name</th>
+                         <th>Class/Form</th>
+                         <th>Mobile Number</th>
+                         <th>Email</th>
+                         <th class="text-right">Action</th>
+                      </tr>
+                   </thead>
+                   <tbody>
+                     {% for student in students reversed%}
+                        <tr>
+                           <td>
+                              <h2 class="table-avatar">
+                                 <a href="{% url "student_details" student.user %}" class="avatar avatar-sm mr-2"><img class="avatar-img rounded-circle" src="{{student.user.profile_pic.url}}" alt="User Image"></a>
+                                 <a href="{% url "student_details" student.user %}">{{student.user.first_name|capfirst}} {{student.user.last_name|capfirst}}</a>
+                              </h2>
+                           </td>
+                           <td>{{student.class_id.name}}</td>
+                           <td>{{student.phone}}</td>
+                           <td>{{student.user.email}}</td>
+                           <td class="text-right">
+                              <div class="actions">
+                                 <a href="{% url "edit_student" student.user %}" class="btn btn-sm bg-success-light mr-2">
+                                 <i class="fas fa-pen"></i>
+                                 </a>
+                                 <a href="{% url "delete_student" student.user %}" class="btn btn-sm bg-danger-light">
+                                 <i class="fas fa-trash"></i>
+                                 </a>
+                              </div>
+                           </td>
+                        </tr>
+                     {% endfor %}
+                     
+                   </tbody>
+                </table>
+             </div>
+          </div>
+       </div>
+    </div>
+ </div>
+ {% endif %}
+{% endblock content %}
