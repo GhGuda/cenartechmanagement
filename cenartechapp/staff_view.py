@@ -439,6 +439,7 @@ def add_marks(request, class_id):
 
     is_class_manager = student.class_id.managed_by == staff
 
+    # Fetch all subjects for the student's class
     subjects = Subject.objects.filter(class_Form=student.class_id)
 
     # Only allow editing of the subjects the staff is teaching
