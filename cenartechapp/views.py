@@ -25,7 +25,7 @@ def Stafftype(request):
 
 
 def Login(request):
-    return render(request, 'login.html')
+    return render(request, 'index.html')
 
 
 
@@ -119,7 +119,7 @@ def doLogin(request):
             'email':email,
         }
         # Render the login page for GET request
-        return render(request, 'login.html', context)
+        return render(request, 'index.html', context)
     
 
 def doLogout(request):

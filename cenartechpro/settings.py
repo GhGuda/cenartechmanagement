@@ -20,6 +20,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 if 'RENDER' in os.environ:
     WKHTMLTOPDF_PATH = '/usr/bin/wkhtmltopdf'
+elif 'CPANEL' in os.environ:
+    WKHTMLTOPDF_PATH = '/usr/local/bin/wkhtmltopdf'
 else:
     WKHTMLTOPDF_PATH = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
 
@@ -152,9 +154,9 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
-SCHOOL_NAME = "Benefit Boys Academy"
-SCHOOL_SLOGAN = "FRIENDS WITH POWER"
-SCHOOL_LOCATION = "ZONGO LANE, NYANYANO ROAD KASOA"
-SCHOOL_NUM = "024-888-9999"
-SCHOOL_WEB = "https://bbacademy.onrender.com"
-SCHOOL_MARKS = 3000
+SCHOOL_NAME = config('SCHOOL_NAME')
+SCHOOL_SLOGAN = config('SCHOOL_SLOGAN')
+SCHOOL_LOCATION = config('SCHOOL_LOCATION')
+SCHOOL_NUM = config('SCHOOL_NUM')
+SCHOOL_WEB = config('SCHOOL_WEB')
+SCHOOL_MARKS = config('SCHOOL_MARKS')
