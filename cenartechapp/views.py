@@ -30,6 +30,7 @@ def Login(request):
 
 
 def doLogin(request):
+    email = None
     if request.method == "POST":
         # Authenticate the user
         if "@" in request.POST['email']:
@@ -80,7 +81,7 @@ def doLogin(request):
                     
             except:
                 messages.error(request, "Error logging in, check your internet connection!")
-                return render(request, 'login.html', {
+                return render(request, 'index.html', {
                         "entered_data": request.POST
                 })
 
@@ -98,20 +99,20 @@ def doLogin(request):
                 return redirect('student_home')
             else:
                 messages.error(request, "User type is not recognized.")
-                return render(request, 'login.html', {
+                return render(request, 'index.html', {
                         "entered_data": request.POST
                 })
         else:
             if "@" in request.POST['email']:
                 messages.error(request, "Email and password are invalid!")
-                return render(request, 'login.html', {
+                return render(request, 'index.html', {
                         "entered_data": request.POST
                     })
                 
             else:
                 email=request.POST['email']
                 messages.error(request, "Username and password are invalid!")
-                return render(request, 'login.html', {
+                return render(request, 'index.html', {
                         "entered_data": request.POST
                     })
     else:

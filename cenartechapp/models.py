@@ -97,8 +97,8 @@ class Student(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     subjects = models.ManyToManyField(Subject, blank=True)
     interest = models.CharField(max_length=255, blank=True)
-    conduct = models.TextField(blank=True)
-    remarks = models.TextField(blank=True)
+    conduct = models.TextField(default="Very Good")
+    remarks = models.TextField(default="Very Good")
     year_stopped = models.CharField(max_length=100, blank=True)
     term_stopped = models.CharField(max_length=100, blank=True)
     attendance = models.CharField(max_length=100)
@@ -189,6 +189,8 @@ class YearlyAdmittedStudents(models.Model):
 
 class Term(models.Model):
     term = models.CharField(max_length=30, default="One")
+    hod_remarks = models.TextField(default="Very Good")
+    cutOfPoint = models.DecimalField(max_digits=10, decimal_places=0, default=0)
     vacation_date = models.CharField(max_length=30, blank=True)
     reopening_date = models.CharField(max_length=30, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

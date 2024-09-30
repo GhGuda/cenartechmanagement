@@ -1196,19 +1196,22 @@ def add_term(request):
             vacation = request.POST['vacation']
             rdate = request.POST['rdate']
             term_value = request.POST['term']
+            hod_remark = request.POST['hod_remark']
+            cutoffpoint = request.POST['cutoffpoint']
 
-            previous_term = term.term  # Store the previous term before updating
+            previous_term = term.term 
 
-            # Update the existing Term object
             if term_value != "Select Term":
                 term.term = term_value
                 term.vacation_date = vacation
                 term.reopening_date = rdate
+                term.hod_remarks = hod_remark
+                term.cutOfPoint = cutoffpoint
                 term.save()
             
-                # Check if the term is being changed from "Three" to "One"
+                
                 if previous_term == "Three" and term_value == "One":
-                    promote_students(request)  # Call the promotion logic
+                    promote_students(request)
                     for student in students:
                         student.total_marks_term_one = 0
                         student.total_marks_term_two = 0
@@ -1241,13 +1244,21 @@ def add_term(request):
 
 def promote_students(request):
     try:
+        term = Term.objects.get(pk=1)
+        print(term.cutOfPoint)
+        
+        
         forms_promotion = {
             "Form One": "Form Two",
             "Form Two": "Form Three",
-            "Form Three": ""  # This indicates no further promotion
+            "Form Three": ""
         }
 
         lower_classes_promotion = {
+            "Nursery One": "Nursery Two",
+            "Nursery Two": "Kindergarten One",
+            "Kindergarten One": "Kindergarten Two",
+            "Kindergarten Two": "Class One",
             "Class One": "Class Two",
             "Class Two": "Class Three",
             "Class Three": "Class Four",
@@ -1262,21 +1273,19 @@ def promote_students(request):
         for student in students:
             current_class = student.class_id.name
             
+            
 
             class_f3 = Class_Form.objects.get(name="Completed Class")
-            # Handle promotion for students in Form Three, Term Three
-           
-            # Check if the total marks are >= 1000
-            if student.overall_total_marks >= 999:
+            
+            if student.overall_total_marks >= term.cutOfPoint:
                 # Handle promotion for students in Form Three, Term Three
                 if current_class == "Form Three":
                     class_f3 = Class_Form.objects.get(name="Completed Class")
                     student.class_id = class_f3
                     student.subjects.clear()  # Clear all subjects
                     student.save()
-                    continue  # Skip further processing for these students
+                    continue
 
-                # Determine the new class based on the current class
                 if current_class in forms_promotion:
                     new_class_name = forms_promotion[current_class]
                 elif current_class in lower_classes_promotion:
@@ -1284,18 +1293,16 @@ def promote_students(request):
                 else:
                     new_class_name = None
 
-                # If there is a new class to promote to, update the student
                 if new_class_name:
                     new_class = Class_Form.objects.get(name=new_class_name)
                     student.class_id = new_class
                     student.promoted_to=new_class
-                    student.subjects.clear()  # Clear old subjects
-                    student.assign_subjects()  # Assign new subjects based on the new class
+                    student.subjects.clear()  
+                    student.assign_subjects() 
                     student.save()
             else:
-                # If total marks are less than 1000, student repeats the current class
                 student.promoted_to = student.class_id
-                student.save()  # No promotion, remains in the same class
+                student.save()  
     except:
         messages.error(request, "An error occured while processing promotion.")
         return redirect(add_term)
