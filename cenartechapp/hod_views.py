@@ -1245,7 +1245,6 @@ def add_term(request):
 def promote_students(request):
     try:
         term = Term.objects.get(pk=1)
-        print(term.cutOfPoint)
         
         
         forms_promotion = {
