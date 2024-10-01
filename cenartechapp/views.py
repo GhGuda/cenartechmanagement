@@ -41,67 +41,73 @@ def doLogin(request):
                                          password=request.POST['password'].lower())
         
         if user is not None:
+            if user.is_active == True:
             # Establish SMTP connection
-            try:
-                smtp = smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT)
-                smtp.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
-                
-                
-                msg = EmailMessage()
-                msg['Subject'] = "New Login Detected"
-                msg['From'] = EMAIL_HOST_USER
-                msg['To'] = user.email
-
-                if user.email:
-                    msg.add_alternative(
-                        f"""
-                        <html>
-                        <body>
-                            <p>Dear <strong>{user.first_name.capitalize()} {user.last_name.capitalize()}</strong>,</p>
-                            <p>
-                                We noticed a new login to your account on <strong>{schoolname}</strong> platform. If this was you, there's nothing to worry about.
-                                However, if you did not initiate this login, please contact our support team immediately.
-                            </p>
-                            <p>
-                                Stay secure, and thank you for being part of our community.
-                            </p>
-                            <p>
-                                For any assistance, feel free to reach out to us at:
-                            </p>
-                            <p>Email: <a href="mailto:ghguda@gmail.com">ghguda@gmail.com</a></p>
-                            <p>Phone: <a href="tel:+233594074717">0594074717</a></p>
-                            <p style="margin-top: 20px;">Best regards,</p>
-                            <p><strong>{schoolname} Security Team</strong></p>
-                        </body>
-                        </html>
-                        """,
-                        subtype='html'
-                    )
-                    smtp.send_message(msg)
+                try:
+                    smtp = smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT)
+                    smtp.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
                     
-            except:
-                messages.error(request, "Error logging in, check your internet connection!")
-                return render(request, 'index.html', {
-                        "entered_data": request.POST
-                })
+                    
+                    msg = EmailMessage()
+                    msg['Subject'] = "New Login Detected"
+                    msg['From'] = EMAIL_HOST_USER
+                    msg['To'] = user.email
 
-            login(request, user)
-            user_type = user.user_type
-            
-            if user_type == 'HOD':
-                messages.success(request, "Login successful!")
-                return redirect('hod_home')
-            elif user_type == 'STAFF':
-                messages.success(request, "Login successful!")
-                return redirect('staff_home')
-            elif user_type == 'STUDENT':
-                messages.success(request, "Login successful!")
-                return redirect('student_home')
+                    if user.email:
+                        msg.add_alternative(
+                            f"""
+                            <html>
+                            <body>
+                                <p>Dear <strong>{user.first_name.capitalize()} {user.last_name.capitalize()}</strong>,</p>
+                                <p>
+                                    We noticed a new login to your account on <strong>{schoolname}</strong> platform. If this was you, there's nothing to worry about.
+                                    However, if you did not initiate this login, please contact our support team immediately.
+                                </p>
+                                <p>
+                                    Stay secure, and thank you for being part of our community.
+                                </p>
+                                <p>
+                                    For any assistance, feel free to reach out to us at:
+                                </p>
+                                <p>Email: <a href="mailto:ghguda@gmail.com">ghguda@gmail.com</a></p>
+                                <p>Phone: <a href="tel:+233594074717">0594074717</a></p>
+                                <p style="margin-top: 20px;">Best regards,</p>
+                                <p><strong>{schoolname} Security Team</strong></p>
+                            </body>
+                            </html>
+                            """,
+                            subtype='html'
+                        )
+                        smtp.send_message(msg)
+                        
+                except:
+                    messages.error(request, "Error logging in, check your internet connection!")
+                    return render(request, 'index.html', {
+                            "entered_data": request.POST
+                    })
+
+                login(request, user)
+                user_type = user.user_type
+                
+                if user_type == 'HOD':
+                    messages.success(request, "Login successful!")
+                    return redirect('hod_home')
+                elif user_type == 'STAFF':
+                    messages.success(request, "Login successful!")
+                    return redirect('staff_home')
+                elif user_type == 'STUDENT':
+                    messages.success(request, "Login successful!")
+                    return redirect('student_home')
+                else:
+                    messages.error(request, "User type is not recognized.")
+                    return render(request, 'index.html', {
+                            "entered_data": request.POST
+                    })
             else:
-                messages.error(request, "User type is not recognized.")
+                messages.error(request, "Account is not active!")
                 return render(request, 'index.html', {
                         "entered_data": request.POST
-                })
+                    })
         else:
             if "@" in request.POST['email']:
                 messages.error(request, "Email and password are invalid!")
