@@ -20,10 +20,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 
-WKHTMLTOPDF_PATH = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+# WKHTMLTOPDF_PATH = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
     
 
-# WKHTMLTOPDF_PATH = '/usr/bin/wkhtmltopdf'
+WKHTMLTOPDF_PATH = '/usr/bin/wkhtmltopdf'
 
 SECRET_KEY = config("SECRET_KEY")
 
@@ -92,13 +92,6 @@ WSGI_APPLICATION = 'cenartechpro.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 
 
 DATABASES = {
@@ -107,8 +100,8 @@ DATABASES = {
         'NAME': 'cenartech',
         'USER': 'root',
         'PASSWORD': '@Mecknarh1',
-        'HOST': 'localhost',  # Or the IP address of your MySQL server
-        'PORT': '3306',       # Default MySQL port
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 

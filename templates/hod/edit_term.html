@@ -2,6 +2,19 @@
 
 {% block content %}
 {% if request.user.user_type == "HOD" %}
+
+<style>
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  
+    input[type="number"] {
+      -moz-appearance: textfield; /* Firefox */
+      appearance: textfield;
+    }
+  </style>
 <div class="page-header">
     <div class="row align-items-center">
         <div class="col">
@@ -34,14 +47,14 @@
                         <div class="col-12 col-sm-6">
                             <div class="form-group">
                                 <label for="vacation">Vacation Date</label>
-                                <input type="date" name="vacation" id="vacation" class="form-control">
+                                <input type="date" name="vacation" value="{{term.vacation_date}}" id="vacation" class="form-control">
                             </div>
                         </div>
 
                         <div class="col-12 col-sm-6">
                             <div class="form-group">
                                 <label for="rdate">Reopening Date</label>
-                                <input type="date" name="rdate" id="rdate" class="form-control">
+                                <input type="date" name="rdate" id="rdate" value="{{term.reopening_date}}" class="form-control">
                             </div>
                         </div>
 
@@ -67,7 +80,7 @@
                         <div class="col-12 col-sm-6">
                             <div class="form-group">
                                 <label for="cutoffpoint">Cut Off Point</label>
-                                <input type="text" name="cutoffpoint" value="{{term.cutOfPoint}}" id="cutoffpoint" class="form-control">
+                                <input type="number" name="cutoffpoint" value="{{term.cutOfPoint}}" id="cutoffpoint" class="form-control">
                             </div>
                         </div>
 
