@@ -34,7 +34,7 @@ SECRET_KEY = config("SECRET_KEY")
 # DEBUG = config('DEBUG', cast=bool)
 DEBUG = True
 
-ALLOWED_HOSTS = ['www.cenartechmanagement.top', 'cenartechmanagement.top']
+ALLOWED_HOSTS = ['www.cenartechmanagement.top', 'localhost', 'cenartechmanagement.top']
 
 
 # Application definition
