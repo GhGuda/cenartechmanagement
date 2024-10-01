@@ -32,7 +32,7 @@ SECRET_KEY = config("SECRET_KEY")
 # DEBUG = config('DEBUG', cast=bool)
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '18.185.219.179', 'localhost', 'cenartechmanagement.onrender.com', 'cenartechmanagement.top']
+ALLOWED_HOSTS = ['127.0.0.1', '18.185.219.179', 'localhost', 'cenartechmanagement.onrender.com', 'cenartechmanagement.top', 'cenartechmanagement.top']
 
 
 # Application definition
@@ -45,8 +45,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "cenartechapp",
-    "active_link"
+    "active_link",
+    'wkhtmltopdf',
 ]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://cenartechmanagement.top',
+    'http://cenartechmanagement.top',
+    'http://www.cenartechmanagement.top',
+    'https://www.cenartechmanagement.top',
+]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
