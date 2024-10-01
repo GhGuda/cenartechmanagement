@@ -18,13 +18,15 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-if 'RENDER' in os.environ:
-    WKHTMLTOPDF_PATH = '/usr/bin/wkhtmltopdf'
-elif 'CPANEL' in os.environ:
-    WKHTMLTOPDF_PATH = '/usr/local/bin/wkhtmltopdf'
-else:
-    WKHTMLTOPDF_PATH = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+# if 'RENDER' in os.environ:
+#     WKHTMLTOPDF_PATH = '/usr/bin/wkhtmltopdf'
+# elif 'CPANEL' in os.environ:
+#     WKHTMLTOPDF_PATH = '/usr/local/bin/wkhtmltopdf'
+# else:
+#     WKHTMLTOPDF_PATH = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+#     
 
+WKHTMLTOPDF_PATH = '/usr/bin/wkhtmltopdf'
 
 SECRET_KEY = config("SECRET_KEY")
 
