@@ -18,15 +18,12 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# if 'RENDER' in os.environ:
-#     WKHTMLTOPDF_PATH = '/usr/bin/wkhtmltopdf'
-# elif 'CPANEL' in os.environ:
-#     WKHTMLTOPDF_PATH = '/usr/local/bin/wkhtmltopdf'
-# else:
-#     WKHTMLTOPDF_PATH = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-#     
 
-WKHTMLTOPDF_PATH = '/usr/bin/wkhtmltopdf'
+
+WKHTMLTOPDF_PATH = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+    
+
+# WKHTMLTOPDF_PATH = '/usr/bin/wkhtmltopdf'
 
 SECRET_KEY = config("SECRET_KEY")
 
@@ -34,7 +31,7 @@ SECRET_KEY = config("SECRET_KEY")
 # DEBUG = config('DEBUG', cast=bool)
 DEBUG = True
 
-ALLOWED_HOSTS = ['www.cenartechmanagement.top', 'localhost', 'cenartechmanagement.top']
+ALLOWED_HOSTS = ['www.cenartechmanagement.top', '127.0.0.1', 'localhost', 'cenartechmanagement.top']
 
 
 # Application definition
@@ -95,12 +92,26 @@ WSGI_APPLICATION = 'cenartechpro.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'cenartech',
+        'USER': 'root',
+        'PASSWORD': '@Mecknarh1',
+        'HOST': 'localhost',  # Or the IP address of your MySQL server
+        'PORT': '3306',       # Default MySQL port
     }
 }
+
 
 
 # Password validation

@@ -107,15 +107,21 @@ def staff_home(request):
                     is_class_manager = item.class_id.managed_by == staff
                     
             
-                if subject.managed_by == staff:
-                    if students.exists():
-                        pass
+                try:
+                    if subject.managed_by == staff:
+                        if students.exists():
+                            pass
+                        else:
+                            
+                            messages.error(request, f"No students registered in {student_class}!")
                     else:
+                        messages.error(request, f"You don't have access to students registered in {subject}!")
+                        return redirect(staff_home)
                         
-                        messages.error(request, f"No students registered in {student_class}!")
-                else:
-                    messages.error(request, f"You don't have access to students registered in {subject}!")
-            
+                except:
+                    messages.error(request, f"Please select subject!")
+                    return redirect(staff_home)
+                    
 
         if staff.stafftype == "Subject Teacher":
             class_id = request.POST.get('class')
