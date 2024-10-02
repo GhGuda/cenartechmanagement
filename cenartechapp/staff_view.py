@@ -67,95 +67,98 @@ def staff_home(request):
     subject = None
     is_class_manager = None
     is_subject=None
-    if action is not None and request.method == 'POST':
-        class_manager_action = request.POST.get('class_manager_action')
-        
-        if staff.stafftype == "Class Manager":
-            if class_manager_action == "class-managing":
-                class_id = request.POST.get('class_form_manage')
-                if class_id == "Select Class/Form":
-                    messages.error(request, "Please select class!")
-                    return redirect(staff_home)
-                student_class = Class_Form.objects.get(id=class_id)
-                students = Student.objects.filter(class_id__name=student_class).exclude(user__is_active=False)
-                for item in students:
-                    is_class_manager = item.class_id.managed_by == staff
+    try:
+        if action is not None and request.method == 'POST':
+            class_manager_action = request.POST.get('class_manager_action')
             
-                if students.exists():
-                    pass
-                else:
-                    messages.error(request, f"No students registered in {student_class}!")
-        
-                    
-            elif class_manager_action == "subject-class":
-                class_id = request.POST.get('class_form_subject')
+            if staff.stafftype == "Class Manager":
+                if class_manager_action == "class-managing":
+                    class_id = request.POST.get('class_form_manage')
+                    if class_id == "Select Class/Form":
+                        messages.error(request, "Please select class!")
+                        return redirect(staff_home)
+                    student_class = Class_Form.objects.get(id=class_id)
+                    students = Student.objects.filter(class_id__name=student_class).exclude(user__is_active=False)
+                    for item in students:
+                        is_class_manager = item.class_id.managed_by == staff
                 
+                    if students.exists():
+                        pass
+                    else:
+                        messages.error(request, f"No students registered in {student_class}!")
+            
+                        
+                elif class_manager_action == "subject-class":
+                    class_id = request.POST.get('class_form_subject')
+                    
+                    if class_id == "Select Class/Form":
+                        messages.error(request, "Please select class!")
+                        return redirect(staff_home)
+                    selected_subject = request.POST.get('subject')
+                    
+                    if selected_subject == "Subject":
+                        messages.error(request, "Please select subject!")
+                        return redirect(staff_home)
+                    subject = Subject.objects.filter(class_Form__name=class_id, subject_name=selected_subject).first()
+                    student_class = Class_Form.objects.get(name=class_id)
+                    
+                    students = Student.objects.filter(class_id__name=student_class, subjects__subject_name=selected_subject, subjects__managed_by=staff).exclude(user__is_active=False)
+                    for item in students:
+                        is_subject = is_class_manager = any(subject.managed_by == staff for subject in item.subjects.all())
+                        is_class_manager = item.class_id.managed_by == staff
+                        
+                
+                    try:
+                        if subject.managed_by == staff:
+                            if students.exists():
+                                pass
+                            else:
+                                
+                                messages.error(request, f"No students registered in {student_class}!")
+                        else:
+                            messages.error(request, f"You don't have access to students registered in {subject}!")
+                            return redirect(staff_home)
+                            
+                    except:
+                        messages.error(request, f"Please select subject!")
+                        return redirect(staff_home)
+                        
+            
+            if staff.stafftype == "Subject Teacher":
+                class_id = request.POST.get('class')
                 if class_id == "Select Class/Form":
                     messages.error(request, "Please select class!")
                     return redirect(staff_home)
-                selected_subject = request.POST.get('subject')
                 
+                
+                
+                selected_subject = request.POST.get('subject')
                 if selected_subject == "Subject":
                     messages.error(request, "Please select subject!")
                     return redirect(staff_home)
+                
                 subject = Subject.objects.filter(class_Form__name=class_id, subject_name=selected_subject).first()
+                
                 student_class = Class_Form.objects.get(name=class_id)
                 
                 students = Student.objects.filter(class_id__name=student_class, subjects__subject_name=selected_subject, subjects__managed_by=staff).exclude(user__is_active=False)
+                
                 for item in students:
                     is_subject = is_class_manager = any(subject.managed_by == staff for subject in item.subjects.all())
                     is_class_manager = item.class_id.managed_by == staff
                     
-            
-                try:
-                    if subject.managed_by == staff:
-                        if students.exists():
-                            pass
-                        else:
-                            
-                            messages.error(request, f"No students registered in {student_class}!")
-                    else:
-                        messages.error(request, f"You don't have access to students registered in {subject}!")
-                        return redirect(staff_home)
-                        
-                except:
-                    messages.error(request, f"Please select subject!")
-                    return redirect(staff_home)
-                    
-
-        if staff.stafftype == "Subject Teacher":
-            class_id = request.POST.get('class')
-            if class_id == "Select Class/Form":
-                messages.error(request, "Please select class!")
-                return redirect(staff_home)
-            
-            
-            
-            selected_subject = request.POST.get('subject')
-            if selected_subject == "Subject":
-                messages.error(request, "Please select subject!")
-                return redirect(staff_home)
-            
-            subject = Subject.objects.filter(class_Form__name=class_id, subject_name=selected_subject).first()
-            
-            student_class = Class_Form.objects.get(name=class_id)
-            
-            students = Student.objects.filter(class_id__name=student_class, subjects__subject_name=selected_subject, subjects__managed_by=staff).exclude(user__is_active=False)
-            
-            for item in students:
-                is_subject = is_class_manager = any(subject.managed_by == staff for subject in item.subjects.all())
-                is_class_manager = item.class_id.managed_by == staff
                 
-            
-            if subject.managed_by == staff:
-                if students.exists():
-                    pass
+                if subject.managed_by == staff:
+                    if students.exists():
+                        pass
+                    else:
+                        
+                        messages.error(request, f"No students registered in {student_class}!")
                 else:
-                    
-                    messages.error(request, f"No students registered in {student_class}!")
-            else:
-                messages.error(request, f"You don't have access to students registered in {subject}!")
-        
+                    messages.error(request, f"You don't have access to students registered in {subject}!")
+    except:
+        messages.error(request, "An error occured, refresh your page!")    
+        return redirect(staff_home)
     data = {
         'staff': staff,
         'students': students,
