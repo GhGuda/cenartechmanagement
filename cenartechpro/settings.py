@@ -60,6 +60,11 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB
 
 
+SECURE_SSL_REDIRECT = True  # Force HTTPS for all requests
+USE_X_FORWARDED_HOST = True  # Use headers to determine the correct host
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Inform Django that we're behind a proxy using HTTPS
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
