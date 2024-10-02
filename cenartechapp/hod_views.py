@@ -17,6 +17,8 @@ from django.db.models import Q
 from django.conf import settings
 import smtplib
 from email.message import EmailMessage
+import re
+
 
 
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
@@ -31,6 +33,9 @@ schoolname=settings.SCHOOL_NAME
 
 
 
+def is_valid_input(input_string):
+    pattern = r'^[a-zA-Z0-9@.\-_]+$'
+    return bool(re.match(pattern, input_string))
 
 
 @login_required(login_url='/')
@@ -225,6 +230,7 @@ def add_student(request):
                         email_sent = True
                     except:
                         messages.error(request, f"Failed to send email, please check your internet connection!")
+                        return redirect(add_student)
                 
                 # Attempt to send the email to the father's email
                 if father_email:
@@ -593,32 +599,37 @@ def edit_student(request, user_name):
 
 
 
-
 @login_required(login_url='/')
 def student_details(request, user_name):
     user = get_object_or_404(CustomUser, username=user_name)
     students = get_object_or_404(Student,user__username=user)
+    
     studentclass = Class_Form.objects.all().exclude(name="Completed Class")
+    
     
     try:
         if request.method == "POST":
             password = request.POST['password']
             password2 = request.POST['password2']
+            
+            if not is_valid_input(password) or not is_valid_input(password2):
+                messages.error(request, "Invalid characters detected in password.")
+                return redirect(student_details, user.username)
         
             if len(password) <=7:
                 messages.error(request, "Password must be more than 7 letters long!")
-                return redirect(student_details, user)
+                return redirect(student_details, user.username)
             elif password == password2:
                 students.user.set_password(password)
-                students.save()
+                students.user.save()
                 messages.success(request, "Password changed successfully!")
-                return redirect(student_details, user)
+                return redirect(student_details, user.username)
             else:
                 messages.error(request, "Password did not match!")
-                return redirect(student_details, user)
+                return redirect(student_details, user.username)
     except:
-        messages.error(request, "An error occured, please try again!")
-        return redirect(student_details, user)
+        messages.error(request, "Password change failed!")
+        return redirect(student_details, user.username)
         
     context={
         'student':students,
@@ -1054,22 +1065,29 @@ def view_staffs(request):
 def view_staff_details(request, staffname):
     staff_user = get_object_or_404(CustomUser, username=staffname)
     staff = get_object_or_404(Staff, staff_name=staff_user)
+    try:
+        if request.method == "POST":
+            password = request.POST["password1"]
+            password2 = request.POST["password2"]
+            
+            if not is_valid_input(password) or not is_valid_input(password2):
+                messages.error(request, "Invalid characters detected in password.")
+                return redirect(student_details, staffname)
 
-    if request.method == "POST":
-        password = request.POST["password1"]
-        password2 = request.POST["password2"]
-
-        if len(password) <=7:
-            messages.error(request, "Password must be more than 7 letters long!")
-            return redirect(view_staff_details, staffname)
-        elif password == password2:
-            staff_user.set_password(password)
-            staff_user.save()
-            messages.success(request, "Password changed successfully!")
-            return redirect(view_staff_details, staffname)
-        else:
-            messages.error(request, "Password did not match!")
-            return redirect(view_staff_details, staffname)
+            if len(password) <=7:
+                messages.error(request, "Password must be more than 7 letters long!")
+                return redirect(view_staff_details, staffname)
+            elif password == password2:
+                staff_user.set_password(password)
+                staff_user.save()
+                messages.success(request, "Password changed successfully!")
+                return redirect(view_staff_details, staffname)
+            else:
+                messages.error(request, "Password did not match!")
+                return redirect(view_staff_details, staffname)
+    except:
+        messages.error(request, "Password change failed!")
+        return redirect(view_staff_details, staffname)
     context={
         "staff":staff
     }

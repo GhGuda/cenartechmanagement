@@ -7,6 +7,7 @@ from .models import *
 from django.conf import settings
 import smtplib
 from email.message import EmailMessage
+import re
 
 
 
@@ -27,18 +28,30 @@ def Stafftype(request):
 def Login(request):
     return render(request, 'index.html')
 
+def is_valid_input(input_string):
+    pattern = r'^[a-zA-Z0-9@.\-_]+$'
+    return bool(re.match(pattern, input_string))
+
 
 
 def doLogin(request):
     email = None
     if request.method == "POST":
-        # Authenticate the user
+        
+        emails = request.POST.get('email', '').lower()
+        password = request.POST.get('password', '').lower()
+    
+        # Validate email and password inputs
+        if not is_valid_input(emails) or not is_valid_input(password):
+            messages.error(request, "Invalid characters detected in email or password.")
+            return render(request, 'index.html', {"entered_data": request.POST})
+            # Authenticate the user
         if "@" in request.POST['email']:
-            user = EmailBackend.authenticate(request, username=request.POST['email'].lower(), 
-                                         password=request.POST['password'].lower())
+            user = EmailBackend.authenticate(request, username=emails, 
+                                         password=password)
         else:
-            user = authenticate(request, username=request.POST['email'].lower(), 
-                                         password=request.POST['password'].lower())
+            user = authenticate(request, username=emails, 
+                                         password=password)
         
         if user is not None:
             if user.is_active == True:
