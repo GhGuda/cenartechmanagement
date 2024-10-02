@@ -1119,6 +1119,8 @@ def assign_staffs(request):
                 # Assign the class to the selected staff member
                 staf.class_managed.add(class_form_instance)
                 staf.stafftype = "Class Manager"
+                class_form_instance.managed_by = staf
+                class_form_instance.save()
                 staf.save()
 
                 messages.success(request, f"{class_form_instance.name} assigned to staff {staf.staff_name.first_name.capitalize()} {staf.staff_name.middle_name.capitalize()} {staf.staff_name.last_name.capitalize()}")
