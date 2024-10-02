@@ -53,6 +53,13 @@ CSRF_TRUSTED_ORIGINS = [
     'http://cenartechmanagement.top',
 ]
 
+# Increase POST data limit
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB
+
+# Increase file upload size limit
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
