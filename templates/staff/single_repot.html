@@ -185,8 +185,8 @@
                     {% for res in results %}
                     <tr>
                         <td class="subject">{{ res.subject|upper }}</td>
-                        <td>{{ res.total_class_score }}</td>
-                        <td>{{ res.exams_score }}</td>
+                        <td>{{ res.total_class_score|floatformat:2  }}</td>
+                        <td>{{ res.exams_score|floatformat:2  }}</td>
                         <td>{{ res.total_score }}</td>
                         <td>{{ res.grade }}</td>
                         <td>{{ res.profi }}</td>

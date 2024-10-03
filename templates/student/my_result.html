@@ -209,11 +209,11 @@
                     {% for res in results %}
                     <tr>
                         <td class="subject">{{ res.subject|upper }}</td>
-                        <td>{{ res.total_class_score|upper }}</td>
-                        <td>{{ res.exams_score|upper }}</td>
-                        <td>{{ res.total_score|upper }}</td>
-                        <td>{{ res.grade|upper }}</td>
-                        <td>{{ res.profi|upper }}</td>
+                        <td>{{ res.total_class_score|floatformat:2  }}</td>
+                        <td>{{ res.exams_score|floatformat:2  }}</td>
+                        <td>{{ res.total_score }}</td>
+                        <td>{{ res.grade }}</td>
+                        <td>{{ res.profi }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
