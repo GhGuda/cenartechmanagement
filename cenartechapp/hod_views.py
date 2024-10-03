@@ -1236,7 +1236,6 @@ def add_term(request):
                 
                 if previous_term == "Three" and term_value == "One":
                     promote_students(request)
-                    delete_report_cards()
                     for student in students:
                         student.total_marks_term_one = 0
                         student.total_marks_term_two = 0
