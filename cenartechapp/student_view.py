@@ -16,6 +16,14 @@ from django.conf import settings
 
 School_marks = settings.SCHOOL_MARKS
 
+schoolweb = settings.SCHOOL_WEB
+
+schoolname=settings.SCHOOL_NAME
+school_slogan=settings.SCHOOL_SLOGAN
+school_location=settings.SCHOOL_LOCATION
+school_number=settings.SCHOOL_NUM
+
+
 
 
 @login_required(login_url='/')
@@ -69,7 +77,12 @@ def display_student_results(request):
                         'grouped_results': grouped_results,
                         'term': term,
                         'year': year,
-                        'student': student, 
+                        'student': student,
+                        "schoolname":schoolname,
+                        "school_slogan":school_slogan,
+                        "school_location":school_location,
+                        "school_number":school_number,
+                        "schoolweb":schoolweb,
                     })
                     
                     pdfkit_options = {
@@ -102,6 +115,11 @@ def display_student_results(request):
                 'year': year,
                 'student': student,  # Include student info
                 'student_year': student_year,  # Include student info
+                'schoolweb': schoolweb,
+                "schoolname":schoolname,
+                "school_slogan":school_slogan,
+                "school_location":school_location,
+                "school_number":school_number,
             }
             return render(request, "student/my_result.html", context)
     except Exception as e:

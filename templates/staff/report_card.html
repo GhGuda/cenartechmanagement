@@ -1,5 +1,4 @@
 {% load static %}
-{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -164,7 +163,7 @@
     {% for student, results in grouped_results.items %}
     <div class="container">
         <div class="school-header">
-            <img src="{{ 'assets/bcc.png'|absolute_static }}" alt="School Logo">
+            <img src="{{ '{{SCHOOL_WEB}}/static/assets/bcc.png'}}" alt="School Logo">
             <div class="school-info">
                 <h1>{{ schoolname }}</h1>
                 <p>{{school_slogan}}</p>
@@ -213,7 +212,7 @@
             <div>CLASS TEACHER'S REMARKS: {{ student.remarks|upper }}</div>
             <div>HEADTEACHER'S REMARKS: {{ term.hod_remarks|upper }}</div>
             <div>INTEREST: {{ student.interest|upper }}</div>
-            <div>HEADTEACHER'S SIGNATURE: <img src="{{ 'assets/signature.png'|absolute_static }}" alt="Headteacher's Signature"></div>
+            <div>HEADTEACHER'S SIGNATURE: <img src="{{ '{{SCHOOL_WEB}}/static/assets/signature.png'}}" alt="Headteacher's Signature"></div>
         </div>
         <div class="remarks">
             <div>RANGE:</div>

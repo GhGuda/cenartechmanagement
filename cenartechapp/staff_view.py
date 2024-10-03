@@ -405,7 +405,7 @@ def single_card(request, student):
                     <html>
                         <body>
                             <p>Dear <strong>{str(students.user.get_full_name()).capitalize()}</strong>,</p>
-                            <p>Please find your report card for Term {term.term} of the year {context['current_year']} at the following link:</p>
+                            <p>Please find your report card for {students.class_id.name} Term {term.term} of the year {context['current_year']} at the following link:</p>
                             <p><a href="{pdf_url}">View your Report Card</a></p>
                             <p>Best regards,</p>
                             <p><strong>{schoolname}</strong></p>
