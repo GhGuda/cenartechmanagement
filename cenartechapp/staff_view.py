@@ -260,6 +260,7 @@ def see_results(request):
                 "current_year":current_year,
                 "previous_year":previous_year,
                 "staff":staff,
+                "schoolweb":schoolweb,
                 "schoolname":schoolname,
                 "school_slogan":school_slogan,
                 "school_location":school_location,
@@ -363,6 +364,7 @@ def single_card(request, student):
                 "school_slogan":school_slogan,
                 "school_location":school_location,
                 "school_number":school_number,
+                "schoolweb":schoolweb,
             }
 
         pdf_file = generate_pdf('staff/single_repot.html', context)

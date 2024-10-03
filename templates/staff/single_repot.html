@@ -152,7 +152,7 @@
     {% for student, results in grouped_results.items %}
     <div class="container">
         <div class="school-header">
-            <img src="https://bbacademy.onrender.com/static/assets/bcc.png" alt="School Logo">
+            <img src="{{ schoolweb }}/static/assets/bcc.png" alt="School Logo">
             <div class="school-info">
                 <h1>{{ schoolname }}</h1>
                 <p>{{school_slogan}}</p>
@@ -201,7 +201,7 @@
             <div>CLASS TEACHER'S REMARKS: {{ student.remarks|upper }}</div>
             <div>HEADTEACHER'S REMARKS: {{ term.hod_remarks|upper }}</div>
             <div>INTEREST: {{ student.interest|upper }}</div>
-            <div>HEADTEACHER'S SIGNATURE: <img class="sign" src="https://bbacademy.onrender.com/static/assets/signature.png"></div>
+            <div>HEADTEACHER'S SIGNATURE: <img class="sign" src="{{schoolweb}}/static//assets/signature.png"></div>
         </div>
         <div class="remarks">
             <div>RANGE:</div>
