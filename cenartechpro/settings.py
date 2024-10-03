@@ -62,7 +62,7 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB
 
 SECURE_SSL_REDIRECT = True  # Force HTTPS for all requests
 USE_X_FORWARDED_HOST = True  # Use headers to determine the correct host
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Inform Django that we're behind a proxy using HTTPS
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')  # Inform Django that we're behind a proxy using HTTPS
 
 
 
@@ -163,7 +163,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 
-MEDIA_URL = '/media/'
+MEDIA_URL = 'https://cenartechmanagement.top/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

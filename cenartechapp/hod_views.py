@@ -19,6 +19,9 @@ import smtplib
 from email.message import EmailMessage
 import re
 
+from .utils import delete_report_cards
+
+
 
 
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
@@ -1227,11 +1230,13 @@ def add_term(request):
                 term.reopening_date = rdate
                 term.hod_remarks = hod_remark
                 term.cutOfPoint = cutoffpoint
+                delete_report_cards()
                 term.save()
             
                 
                 if previous_term == "Three" and term_value == "One":
                     promote_students(request)
+                    delete_report_cards()
                     for student in students:
                         student.total_marks_term_one = 0
                         student.total_marks_term_two = 0

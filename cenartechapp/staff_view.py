@@ -373,7 +373,7 @@ def single_card(request, student):
         os.makedirs(report_cards_dir, exist_ok=True)
 
         # Save PDF to media/report_cards folder
-        pdf_filename = f"{students.class_id.name}_Report_Card_{students.user.get_full_name()}.pdf"
+        pdf_filename = f"{students.user.get_username()}_Term_{term}_Report_Card.pdf"
         pdf_path = os.path.join(report_cards_dir, pdf_filename)
 
         with open(pdf_path, 'wb') as f:
