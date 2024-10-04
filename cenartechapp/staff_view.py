@@ -303,9 +303,9 @@ def send_all_results(request, class_id):
 
     for student_name, status in status_tracker.items():
         if status == "Sent":
-            messages.success(request, f"Report card successfully sent to {str(student_name).capitalize}.")
+            messages.success(request, f"Report card successfully sent to {str(student.user.get_full_name()).capitalize()}.")
         else:
-            messages.error(request, f"Failed to send report card to {str(student_name).capitalize}: {status}")
+            messages.error(request, f"Failed to send report card to {str(student.user.get_full_name()).capitalize()}: {status}")
 
     return redirect('staff_home')
 
@@ -386,24 +386,19 @@ def single_card(request, student):
         pdf_file = generate_pdf('staff/single_repot.html', context)
         
 
-        # Define the directory for saving the PDF
         report_cards_dir = os.path.join(settings.MEDIA_ROOT, 'report_cards')
         os.makedirs(report_cards_dir, exist_ok=True)
 
-        # Save PDF to media/report_cards folder
         pdf_filename = f"{students.user.get_username()}_Term_{term.term}_Report_Card.pdf"
         pdf_path = os.path.join(report_cards_dir, pdf_filename)
 
         with open(pdf_path, 'wb') as f:
             f.write(pdf_file)
 
-        # Get the publicly accessible URL of the generated PDF
         pdf_url = default_storage.url(os.path.join('report_cards', pdf_filename))  # Adjust the URL to include the subfolder
 
-        # If necessary, build the full URL
         pdf_url = request.build_absolute_uri(pdf_url)
 
-        # Send the email with the PDF link
         email = students.user.email
         
         smtp = smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT)
