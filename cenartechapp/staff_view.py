@@ -303,9 +303,9 @@ def send_all_results(request, class_id):
 
     for student_name, status in status_tracker.items():
         if status == "Sent":
-            messages.success(request, f"Report card successfully sent to {str(student.user.get_full_name()).capitalize()}.")
+            messages.success(request, f"Report card successfully sent to {str(student_name).capitalize()}.")
         else:
-            messages.error(request, f"Failed to send report card to {str(student.user.get_full_name()).capitalize()}: {status}")
+            messages.error(request, f"Failed to send report card to {str(student_name).capitalize()}: {status}")
 
     return redirect('staff_home')
 
