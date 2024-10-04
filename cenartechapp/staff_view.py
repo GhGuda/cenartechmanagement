@@ -15,11 +15,12 @@ from django.conf import settings
 import pdfkit
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from django.core.mail import send_mail
 import os
 from django.core.files.storage import default_storage
 from email.message import EmailMessage
 from concurrent.futures import ThreadPoolExecutor
+from django.core.mail import EmailMessage, get_connection
+
 
 
 
@@ -279,14 +280,6 @@ def see_results(request):
     }
     return render(request, 'staff/select_class_form.html', data)
 
-
-
-def send_report_card(student, request):
-    try:
-        single_card(request, student.user.username)
-    except:
-        messages.error(request, f"Error sending report card to {student.user.get_full_name()}")
-        
         
 
 @login_required(login_url="/")
@@ -297,14 +290,40 @@ def send_all_results(request, class_id):
     staff = get_object_or_404(Staff, staff_name=request.user)
     students = Student.objects.filter(class_id__managed_by=staff, class_id__name=class_id).exclude(user__is_active=False)
 
-    # Use a thread pool to send reports concurrently
-    with ThreadPoolExecutor(max_workers=1) as executor:
+    status_tracker = {}
+
+    # Reuse SMTP connection for multiple emails
+    email_connection = get_connection()
+    
+    # Increase the number of workers based on system capabilities
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = []
         for student in students:
-            executor.submit(send_report_card, student, request)
+            futures.append(executor.submit(send_report_card, student, request, status_tracker, email_connection))
+
+        for future in futures:
+            try:
+                future.result()
+            except Exception as e:
+                messages.error(request, f"Error during sending: {str(e)}")
+
+    # Display status of sending report cards
+    for student_name, status in status_tracker.items():
+        if status == "Sent":
+            messages.success(request, f"Report card successfully sent to {student_name}.")
+        else:
+            messages.error(request, f"Failed to send report card to {student_name}: {status}")
 
     return redirect('staff_home')
 
 
+
+def send_report_card(student, request, status_tracker, email_connection):
+    try:
+        single_card(request, student.user.username, email_connection)
+        status_tracker[student.user.get_full_name()] = "Sent"
+    except Exception as e:
+        status_tracker[student.user.get_full_name()] = f"Failed: {str(e)}"
 
 
 
@@ -328,109 +347,101 @@ def generate_pdf(template_name, context):
 
 
 @login_required(login_url="/")
-def single_card(request, student):
+def single_card(request, student, email_connection=None):
     try:
         staff = get_object_or_404(Staff, staff_name__username=request.user.username)
         term = Term.objects.get(pk=1)
-        
+
+        # Fetch the class managed by the staff
         staff_class = staff.class_managed.all()
-        
         students = None
-        
+
+        # Search through classes managed by the staff to find the specific student
         for item in staff_class:
             class_id = item.name
-        
+
             try:
+                # Find the student in one of the staff's classes
                 students = Student.objects.get(class_id__name=class_id, class_id__managed_by=staff, user__username=student)
-                break  # Exit the loop once the student is found
+                break  # Exit loop once the student is found
             except Student.DoesNotExist:
                 continue
-            
+
         if not students:
             messages.error(request, "Student not found in the classes managed by the staff.")
+            return redirect('staff_home')
 
-        
+        # Get results for the student for the given term
         results = StudentResult.objects.filter(student=students, term=term.term).exclude(student__user__is_active=False)
-            
         grouped_results = {students: results}
 
+        # Prepare context for rendering the PDF
         context = {
-                'grouped_results': grouped_results,
-                'term': term,
-                'previous_year': get_years(request)[1],  
-                'current_year': get_years(request)[0],
-                'staff': staff,
-                "schoolname":schoolname,
-                "school_slogan":school_slogan,
-                "school_location":school_location,
-                "school_number":school_number,
-                "schoolweb":schoolweb,
-            }
+            'grouped_results': grouped_results,
+            'term': term,
+            'previous_year': get_years(request)[1],  
+            'current_year': get_years(request)[0],
+            'staff': staff,
+            "schoolname": schoolname,
+            "school_slogan": school_slogan,
+            "school_location": school_location,
+            "school_number": school_number,
+            "schoolweb": schoolweb,
+        }
 
+        # Generate PDF file
         pdf_file = generate_pdf('staff/single_repot.html', context)
-        
 
-        # Define the directory for saving the PDF
+        # Define the directory and filename for saving the PDF
         report_cards_dir = os.path.join(settings.MEDIA_ROOT, 'report_cards')
         os.makedirs(report_cards_dir, exist_ok=True)
-
-        # Save PDF to media/report_cards folder
         pdf_filename = f"{students.user.get_username()}_Term_{term.term}_Report_Card.pdf"
         pdf_path = os.path.join(report_cards_dir, pdf_filename)
 
+        # Save the PDF file to the designated folder
         with open(pdf_path, 'wb') as f:
             f.write(pdf_file)
 
-        # Get the publicly accessible URL of the generated PDF
-        pdf_url = default_storage.url(os.path.join('report_cards', pdf_filename))  # Adjust the URL to include the subfolder
+        # Get the publicly accessible URL for the saved PDF
+        pdf_url = default_storage.url(os.path.join('report_cards', pdf_filename))
+        pdf_url = request.build_absolute_uri(pdf_url)  # Get the full URL
 
-        # If necessary, build the full URL
-        pdf_url = request.build_absolute_uri(pdf_url)
-
-        # Send the email with the PDF link
+        # Send the email with the PDF link if an email exists for the student
         email = students.user.email
-        
-        smtp = smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT)
-        smtp.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
-                    
-                    
-        msg = EmailMessage()
-        msg['Subject'] = f"{students.class_id.name} Report Card"
-        msg['From'] = EMAIL_HOST_USER
-        msg['To'] = email
-
         if email:
             try:
-                
-                msg.add_alternative(
-                    f"""
-                    <html>
-                        <body>
-                            <p>Dear <strong>{str(students.user.get_full_name()).capitalize()}</strong>,</p>
-                            <p>Please find your report card for {students.class_id.name} Term {term.term} of the year {context['current_year']} at the following link:</p>
-                            <p><a href="{pdf_url}">View your Report Card</a></p>
-                            <p>Best regards,</p>
-                            <p><strong>{schoolname}</strong></p>
-                        </body>
-                    </html>
-                    """, subtype='html'
-                )
+                # Prepare the email content
+                subject = f"{students.class_id.name} Report Card"
+                body = f"""
+                <html>
+                    <body>
+                        <p>Dear <strong>{students.user.get_full_name().capitalize()}</strong>,</p>
+                        <p>Please find your report card for {students.class_id.name} Term {term.term} of the year {context['current_year']} at the following link:</p>
+                        <p><a href="{pdf_url}">View your Report Card</a></p>
+                        <p>Best regards,</p>
+                        <p><strong>{schoolname}</strong></p>
+                    </body>
+                </html>
+                """
 
-                # Now, send the email
-                smtp.send_message(msg)
-                smtp.quit()
-                
-                if email == 1:
-                    messages.success(request, "Report card link has been sent successfully to the student's email!")
-                else:
-                    messages.success(request, "Report card link has been sent successfully to the student's email!")
-                
+                # Use the provided email connection or create a new one if not passed
+                if not email_connection:
+                    email_connection = get_connection()
+
+                # Send the email using the provided or created connection
+                email_msg = EmailMessage(subject, body, settings.EMAIL_HOST_USER, [email], connection=email_connection)
+                email_msg.content_subtype = "html"
+                email_msg.send()
+
+                # Indicate success
+                messages.success(request, f"Report card link successfully sent to {students.user.get_full_name()} via email.")
             except Exception as e:
-                messages.error(request, f"Error sending report card link to {students.user.get_full_name()} via email: {str(e)}")
+                messages.error(request, f"Error sending report card to {students.user.get_full_name()}: {str(e)}")
         else:
-            messages.error(request, f"{str(students.user.get_full_name()).capitalize()}'s email is missing!")
-    except:
-        messages.error(request, "Error generating report card for students!")
+            messages.error(request, f"Student {students.user.get_full_name()}'s email is missing!")
+    except Exception as e:
+        messages.error(request, f"Error generating report card for the student: {str(e)}")
+
     return redirect('staff_home')
 
 
