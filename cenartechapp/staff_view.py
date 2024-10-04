@@ -17,7 +17,7 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 import os
 from django.core.files.storage import default_storage
-from django.core.mail import EmailMessage, get_connection
+from email.message import EmailMessage
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -342,6 +342,7 @@ def generate_pdf(template_name, context):
 
 
 
+
 @login_required(login_url="/")
 def single_card(request, student):
     try:
@@ -349,10 +350,6 @@ def single_card(request, student):
         term = Term.objects.get(pk=1)
         
         staff_class = staff.class_managed.all()
-        
-        connection = get_connection()
-        connection.open()
-
         
         students = None
         
@@ -408,19 +405,21 @@ def single_card(request, student):
 
         # Send the email with the PDF link
         email = students.user.email
-        print()
+        
+        smtp = smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT)
+        smtp.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+                    
+                    
+        msg = EmailMessage()
+        msg['Subject'] = f"{students.class_id.name} Report Card"
+        msg['From'] = EMAIL_HOST_USER
+        msg['To'] = email
 
         if email:
-            msg = EmailMessage(
-                subject=f"{students.class_id.name} Report Card",
-                body=f"Dear {students.user.get_full_name()}, here is your report card.",
-                from_email=settings.EMAIL_HOST_USER,
-                to=[email],
-                connection=connection,  # Reuse the same connection
-            )
+            try:
                 
-            msg.add_alternative(
-                f"""
+                msg.add_alternative(
+                    f"""
                     <html>
                         <body>
                             <p>Dear <strong>{str(students.user.get_full_name()).capitalize()}</strong>,</p>
@@ -431,18 +430,15 @@ def single_card(request, student):
                         </body>
                     </html>
                     """, subtype='html'
-            )
-                
-            try:
-                msg.send()  # Email is sent using the same open connection
-                messages.success(request, f"Report card link sent to {students.user.get_full_name()}.")
-            except Exception as e:
-                messages.error(request, f"Error sending report card to {students.user.get_full_name()}: {str(e)}")
-            else:
-                messages.error(request, f"{students.user.get_full_name()}'s email is missing!")
+                )
 
-        # Close the connection after all emails have been sent
-        connection.close()
+                # Now, send the email
+                smtp.send_message(msg)
+                smtp.quit()
+            except Exception as e:
+                messages.error(request, f"Error sending report card link to {students.user.get_full_name()} via email: {str(e)}")
+        else:
+            messages.error(request, f"{str(students.user.get_full_name()).capitalize()}'s email is missing!")
     except:
         messages.error(request, "Error generating report card for students!")
     return redirect('staff_home')
