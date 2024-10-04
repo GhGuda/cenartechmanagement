@@ -29,6 +29,7 @@ school_number=settings.SCHOOL_NUM
 @login_required(login_url='/')
 def display_student_results(request):
     student = get_object_or_404(Student, user=request.user)
+    student_year = None
     try:
         classes = StudentClasses.objects.get(student=student)
         class_list = classes.classes.all()
@@ -113,8 +114,8 @@ def display_student_results(request):
                 'grouped_results': grouped_results,
                 'term': term,
                 'year': year,
-                'student': student,  # Include student info
-                'student_year': student_year,  # Include student info
+                'student': student,
+                'student_year': student_year,
                 'schoolweb': schoolweb,
                 "schoolname":schoolname,
                 "school_slogan":school_slogan,
