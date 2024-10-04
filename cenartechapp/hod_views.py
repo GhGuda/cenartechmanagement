@@ -49,8 +49,8 @@ def home(request):
 
 
     term = Term.objects.first()
-    student_gender_male = Student.objects.filter(gender="male").exclude(user__is_active=False).exclude(class_id__name="Completed Class").count()
-    student_gender_female = Student.objects.filter(gender="female").exclude(user__is_active=False).exclude(class_id__name="Completed Class").count()
+    student_gender_male = Student.objects.filter(gender="male").exclude(user__is_active=False).count()
+    student_gender_female = Student.objects.filter(gender="female").exclude(user__is_active=False).count()
     current_year, previous_year = get_years(request)
     
     # PassedStudents doings
