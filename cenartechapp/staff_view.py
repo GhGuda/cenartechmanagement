@@ -279,14 +279,6 @@ def see_results(request):
     }
     return render(request, 'staff/select_class_form.html', data)
 
-
-
-def send_report_card(student, request):
-    try:
-        single_card(request, student.user.username)
-    except:
-        messages.error(request, f"Error sending report card to {student.user.get_full_name()}")
-        
         
 
 @login_required(login_url="/")
@@ -320,6 +312,18 @@ def send_all_results(request, class_id):
             messages.error(request, f"Failed to send report card to {student_name}: {status}")
 
     return redirect('staff_home')
+
+
+
+
+
+# Modify the send_report_card to reuse the email connection
+def send_report_card(student, request, status_tracker):
+    try:
+        single_card(request, student.user.username)
+        status_tracker[student.user.get_full_name()] = "Sent"
+    except Exception as e:
+        status_tracker[student.user.get_full_name()] = f"Failed: {str(e)}"
 
 
 
