@@ -15,10 +15,9 @@ from django.conf import settings
 import pdfkit
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from django.core.mail import send_mail
 import os
 from django.core.files.storage import default_storage
-from email.message import EmailMessage
+from django.core.mail import EmailMessage, get_connection
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -289,27 +288,24 @@ def send_all_results(request, class_id):
     staff = get_object_or_404(Staff, staff_name=request.user)
     students = Student.objects.filter(class_id__managed_by=staff, class_id__name=class_id).exclude(user__is_active=False)
 
-    status_tracker = {}  # Dictionary to track the sending status of each student
+    status_tracker = {}
 
-    # Use a thread pool to send reports concurrently
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=10) as executor:
         futures = []
         for student in students:
             futures.append(executor.submit(send_report_card, student, request, status_tracker))
 
-        # Wait for all futures to complete (or process results in progress)
         for future in futures:
             try:
-                future.result()  # This will raise any exceptions that occurred in the thread
+                future.result()
             except Exception as e:
                 messages.error(request, f"Error during sending: {str(e)}")
 
-    # Display status of sending report cards
     for student_name, status in status_tracker.items():
         if status == "Sent":
-            messages.success(request, f"Report card successfully sent to {student_name}.")
+            messages.success(request, f"Report card successfully sent to {str(student_name).capitalize}.")
         else:
-            messages.error(request, f"Failed to send report card to {student_name}: {status}")
+            messages.error(request, f"Failed to send report card to {str(student_name).capitalize}: {status}")
 
     return redirect('staff_home')
 
@@ -317,7 +313,6 @@ def send_all_results(request, class_id):
 
 
 
-# Modify the send_report_card to reuse the email connection
 def send_report_card(student, request, status_tracker):
     try:
         single_card(request, student.user.username)
@@ -347,7 +342,6 @@ def generate_pdf(template_name, context):
 
 
 
-
 @login_required(login_url="/")
 def single_card(request, student):
     try:
@@ -355,6 +349,10 @@ def single_card(request, student):
         term = Term.objects.get(pk=1)
         
         staff_class = staff.class_managed.all()
+        
+        connection = get_connection()
+        connection.open()
+
         
         students = None
         
@@ -410,21 +408,19 @@ def single_card(request, student):
 
         # Send the email with the PDF link
         email = students.user.email
-        
-        smtp = smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT)
-        smtp.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
-                    
-                    
-        msg = EmailMessage()
-        msg['Subject'] = f"{students.class_id.name} Report Card"
-        msg['From'] = EMAIL_HOST_USER
-        msg['To'] = email
+        print()
 
         if email:
-            try:
+            msg = EmailMessage(
+                subject=f"{students.class_id.name} Report Card",
+                body=f"Dear {students.user.get_full_name()}, here is your report card.",
+                from_email=settings.EMAIL_HOST_USER,
+                to=[email],
+                connection=connection,  # Reuse the same connection
+            )
                 
-                msg.add_alternative(
-                    f"""
+            msg.add_alternative(
+                f"""
                     <html>
                         <body>
                             <p>Dear <strong>{str(students.user.get_full_name()).capitalize()}</strong>,</p>
@@ -435,21 +431,18 @@ def single_card(request, student):
                         </body>
                     </html>
                     """, subtype='html'
-                )
-
-                # Now, send the email
-                smtp.send_message(msg)
-                smtp.quit()
+            )
                 
-                if email == 1:
-                    messages.success(request, "Report card link has been sent successfully to the student's email!")
-                else:
-                    messages.success(request, "Report card link has been sent successfully to the student's email!")
-                
+            try:
+                msg.send()  # Email is sent using the same open connection
+                messages.success(request, f"Report card link sent to {students.user.get_full_name()}.")
             except Exception as e:
-                messages.error(request, f"Error sending report card link to {students.user.get_full_name()} via email: {str(e)}")
-        else:
-            messages.error(request, f"{str(students.user.get_full_name()).capitalize()}'s email is missing!")
+                messages.error(request, f"Error sending report card to {students.user.get_full_name()}: {str(e)}")
+            else:
+                messages.error(request, f"{students.user.get_full_name()}'s email is missing!")
+
+        # Close the connection after all emails have been sent
+        connection.close()
     except:
         messages.error(request, "Error generating report card for students!")
     return redirect('staff_home')
