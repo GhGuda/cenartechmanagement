@@ -150,13 +150,13 @@ def add_student(request):
             profile_pic = request.FILES.get('profile_pic', 'blank.webp')
             fname = request.POST["fname"].lower().replace(' ', '')
             lname = request.POST["lname"].lower().replace(' ', '')
-            mname = request.POST["mname"].lower().replace(' ', '')
+            mname = request.POST["mname"].lower()
             email = request.POST['email'].lower().replace(' ', '')
             username = request.POST['username'].lower().replace(' ', '').replace("@", "")
-            gender = request.POST['gender'].lower().replace(' ', '')
+            gender = request.POST['gender']
             dob = request.POST['dob']
             class_id = request.POST['class']
-            religion = request.POST['religion'].lower().replace(' ', '')
+            religion = request.POST['religion'].lower()
             phone = request.POST['phone']
             student_password = request.POST['student_password'].lower()
 
@@ -171,23 +171,38 @@ def add_student(request):
             # Student's address
             address1 = request.POST['address1']
             address2 = request.POST['address2']
+            
+            if len(student_password) <= 7:
+                messages.error(request, "Password must be more than 7 letters long!")
+                return render(request, 'hod/add_student.html', {
+                    "entered_data": request.POST
+                })
+            
             if email=="" and CustomUser.objects.filter(email=""):
                 pass
             else:
                 if CustomUser.objects.filter(email__iexact=email).exists():
                     messages.error(request, "Email already exists!")
-                    return redirect('add_student')
+                    return render(request, 'hod/add_student.html', {
+                        "entered_data": request.POST
+                    })
                 
             if gender == "Select Gender":
                 messages.error(request, "Select Student Gender!")
-                return redirect('add_student')
+                return render(request, 'hod/add_student.html', {
+                    "entered_data": request.POST
+                })
             
             if class_id == "Select Class/Form":
                 messages.error(request, "Select Student Class/Form!")
-                return redirect('add_student')
+                return render(request, 'hod/add_student.html', {
+                    "entered_data": request.POST
+                })
             elif CustomUser.objects.filter(username__iexact=username).exists():
                 messages.error(request, "Username already exists!")
-                return redirect('add_student')
+                return render(request, 'hod/add_student.html', {
+                    "entered_data": request.POST
+                })
             else:
                 # Send mail
                 email_sent = False
@@ -373,7 +388,9 @@ def add_student(request):
 
         except:
             messages.error(request, f"Error: Failed to add student!")
-            return redirect('add_student')
+            return render(request, 'hod/add_student.html', {
+                "entered_data": request.POST
+            })
 
     context = {
         "class": student_classes,
@@ -466,7 +483,10 @@ def activate_user(request, user_name):
         
         admitted_students.number = admitted_students.number +1
         admitted_students.save()
-            
+        
+        student.year_stopped = ""
+        student.term_stopped = ""
+        student.save()
         user.save()
         messages.success(request, f'{user.first_name.capitalize()} {user.middle_name.capitalize()} {user.last_name.capitalize()} has been activated successfully!')
         return redirect(student_details, user)
@@ -485,16 +505,16 @@ def edit_student(request, user_name):
     term = Term.objects.get(pk=1)
     try:
         if request.method == "POST":
-            firstname = request.POST["fname"].lower().replace(' ', '')
-            lastname = request.POST["lname"].lower().replace(' ', '')
-            middlename = request.POST["mname"].lower().replace(' ', '')
+            firstname = request.POST["fname"].capitalize().replace(' ', '')
+            lastname = request.POST["lname"].capitalize().replace(' ', '')
+            middlename = request.POST["mname"].capitalize().replace(' ', '')
             email = request.POST['email'].lower().replace(' ', '')
             username = user.username
             gender = request.POST['gender']
             
             dob = request.POST['dob']
             class_id = request.POST['class']
-            religion = request.POST['religion'].lower().replace(' ', '')
+            religion = request.POST['religion'].capitalize()
             phone = request.POST['phone']
 
             # Parents information
@@ -654,7 +674,7 @@ def add_staff(request):
             profile_pic = request.FILES.get('profile_pic')
             fname = request.POST["fname"].capitalize().replace(' ', '')
             lname = request.POST["lname"].capitalize().replace(' ', '')
-            mname = request.POST["mname"].capitalize().replace(' ', '')
+            mname = request.POST["mname"].capitalize()
             email = request.POST['email'].lower().replace(' ', '')
             username = request.POST['username'].lower().replace(' ', '').replace("@", "")
             gender = request.POST['gender']

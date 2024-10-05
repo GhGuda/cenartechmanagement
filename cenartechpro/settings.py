@@ -31,7 +31,18 @@ SECRET_KEY = config("SECRET_KEY")
 # DEBUG = config('DEBUG', cast=bool)
 DEBUG = True
 
-ALLOWED_HOSTS = ['www.cenartechmanagement.top', '127.0.0.1', 'localhost', 'cenartechmanagement.top']
+# ALLOWED_HOSTS = ['www.cenartechmanagement.top', '127.0.0.1', 'localhost', 'cenartechmanagement.top']
+
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+# Remove or set the following settings for development
+SECURE_SSL_REDIRECT = False  # Don't force HTTPS for development
+USE_X_FORWARDED_HOST = False  # Disable forwarding host headers for development
+SECURE_PROXY_SSL_HEADER = None  # No need to set this for development
+
+# CSRF settings for development
+CSRF_TRUSTED_ORIGINS = []
 
 
 # Application definition
@@ -48,21 +59,21 @@ INSTALLED_APPS = [
     'wkhtmltopdf',
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://cenartechmanagement.top',
-    'http://cenartechmanagement.top',
-]
+# CSRF_TRUSTED_ORIGINS = [
+#     'https://cenartechmanagement.top',
+#     'http://cenartechmanagement.top',
+# ]
 
-# Increase POST data limit
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB
+# # Increase POST data limit
+# DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB
 
-# Increase file upload size limit
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB
+# # Increase file upload size limit
+# FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB
 
 
-SECURE_SSL_REDIRECT = True  # Force HTTPS for all requests
-USE_X_FORWARDED_HOST = True  # Use headers to determine the correct host
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Inform Django that we're behind a proxy using HTTPS
+# SECURE_SSL_REDIRECT = True  # Force HTTPS for all requests
+# USE_X_FORWARDED_HOST = True  # Use headers to determine the correct host
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Inform Django that we're behind a proxy using HTTPS
 
 
 

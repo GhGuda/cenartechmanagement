@@ -175,12 +175,6 @@
                                           <a href="{% url 'add_marks' student.user %}" class="btn btn-sm bg-danger-light">
                                             Add Marks  
                                           </a>
-                                          {% comment %} {% if is_class_manager %}
-                                          <!-- Individual Send Result Links -->
-                                          <a href="{% url 'single_card' student.user %}" id="sendAResult"  style="color:white" class="btn btn-success send-result" data-student-id="{{student.id}}">
-                                            Send Result
-                                          </a>
-                                          {% endif %} {% endcomment %}
                                        </div>
                                        
                                     </td>

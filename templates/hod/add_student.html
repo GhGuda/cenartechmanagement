@@ -40,25 +40,25 @@
                    <div class="col-12 col-sm-6">
                       <div class="form-group">
                          <label>First Name</label>
-                         <input type="text" name="fname" class="form-control" placeholder="Emmanuell">
+                         <input type="text" name="fname" class="form-control" value="{{ entered_data.fname|default_if_none:'' }}" placeholder="Emmanuell">
                       </div>
                    </div>
                    <div class="col-12 col-sm-6">
                       <div class="form-group">
                          <label>Middle Name(s)</label>
-                         <input type="text" name="mname" class="form-control" placeholder="Yaw">
+                         <input type="text" name="mname" class="form-control" value="{{ entered_data.mname|default_if_none:'' }}" placeholder="Yaw">
                       </div>
                    </div>
                    <div class="col-12 col-sm-6">
                       <div class="form-group">
                          <label>Last Name</label>
-                         <input type="text" name="lname" class="form-control" placeholder="Narh">
+                         <input type="text" name="lname" class="form-control" value="{{ entered_data.lname|default_if_none:'' }}" placeholder="Narh">
                       </div>
                    </div>
                    <div class="col-12 col-sm-6">
                       <div class="form-group">
                          <label>Username</label>
-                         <input type="text" name="username" class="form-control" placeholder="Emma" required>
+                         <input type="text" name="username" class="form-control" value="{{ entered_data.username|default_if_none:'' }}" placeholder="Emma" required>
                       </div>
                    </div>
                    
@@ -67,8 +67,8 @@
                          <label>Gender</label>
                          <select name="gender" class="form-control" required>
                             <option hidden>Select Gender</option>
-                            <option value="Female">Female</option>
-                            <option value="Male">Male</option>
+                            <option value="Female" {% if entered_data.gender == "Female" %}selected{% endif %} >Female</option>
+                            <option value="Male" {% if entered_data.gender == "Male" %}selected{% endif %} >Male</option>
                          </select>
                       </div>
                    </div>
@@ -86,7 +86,7 @@
                         <select name="class"  class="form-control" required>
                             <option hidden>Select Class/Form</option>
                             {% for class in class %}
-                                <option value={{class.id}}>{{class.name}}</option>
+                                <option value={{class.id}} {% if entered_data.class == class.name %}selected{% endif %}>{{class.name}}</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -94,21 +94,21 @@
                    <div class="col-12 col-sm-6">
                       <div class="form-group">
                          <label>Religion</label>
-                         <input type="text" name="religion" class="form-control" placeholder="Christian">
+                         <input type="text" name="religion" class="form-control" value="{{ entered_data.religion|default_if_none:'' }}" placeholder="Christian">
                       </div>
                    </div>
                   
                    <div class="col-12 col-sm-6">
                       <div class="form-group">
                          <label>Student Number</label>
-                         <input type="number" name="phone" class="form-control" placeholder="0244441861">
+                         <input type="number" name="phone" class="form-control" value="{{ entered_data.phone|default_if_none:'' }}" placeholder="0244441861">
                       </div>
                    </div>
 
                    <div class="col-12 col-sm-6">
                       <div class="form-group">
                          <label>Email</label>
-                         <input type="email" name="email" class="form-control" placeholder="student@gmail.com">
+                         <input type="email" name="email" class="form-control" value="{{ entered_data.email|default_if_none:'' }}" placeholder="student@gmail.com">
                       </div>
                    </div>
 
@@ -131,51 +131,51 @@
                    <div class="col-12 col-sm-6">
                       <div class="form-group">
                          <label>Father's Name</label>
-                         <input type="text" name="father_name" class="form-control" placeholder="Mr.Isaac">
+                         <input type="text" name="father_name" class="form-control" value="{{ entered_data.father_name|default_if_none:'' }}" placeholder="Mr.Isaac">
                       </div>
                    </div>
                    
                    <div class="col-12 col-sm-6">
                       <div class="form-group">
                          <label>Father's Mobile</label>
-                         <input type="number" name="father_number" class="form-control" placeholder="0244441861">
+                         <input type="number" name="father_number" class="form-control" value="{{ entered_data.father_number|default_if_none:'' }}" placeholder="0244441861">
                       </div>
                    </div>
                    <div class="col-12 col-sm-6">
                       <div class="form-group">
                          <label>Father's Email</label>
-                         <input type="email" name="father_email" class="form-control" placeholder="isaac@gmail.com">
+                         <input type="email" name="father_email" class="form-control" value="{{ entered_data.father_email|default_if_none:'' }}" placeholder="isaac@gmail.com">
                       </div>
                    </div>
                    <div class="col-12 col-sm-6">
                       <div class="form-group">
                          <label>Mother's Name</label>
-                         <input type="text" name="mother_name" class="form-control" placeholder="Miss. Elizabeth">
+                         <input type="text" name="mother_name" class="form-control" value="{{ entered_data.mother_name|default_if_none:'' }}" placeholder="Miss. Elizabeth">
                       </div>
                    </div>
                    
                    <div class="col-12 col-sm-6">
                       <div class="form-group">
                          <label>Mother's Mobile</label>
-                         <input type="number" name="mother_number" class="form-control" placeholder="0244441861">
+                         <input type="number" name="mother_number" class="form-control" value="{{ entered_data.mother_number|default_if_none:'' }}" placeholder="0244441861">
                       </div>
                    </div>
                    <div class="col-12 col-sm-6">
                       <div class="form-group">
                          <label>Mother's Email</label>
-                         <input type="email"name="mother_email" class="form-control" placeholder="eli@gmail.com">
+                         <input type="email" name="mother_email" class="form-control" value="{{ entered_data.mother_email|default_if_none:'' }}" placeholder="eli@gmail.com">
                       </div>
                    </div>
                    <div class="col-12 col-sm-6">
                       <div class="form-group">
                          <label>Student Present Address</label>
-                         <textarea name="address1" class="form-control" placeholder="Kasoa Kakraba"></textarea>
+                         <textarea name="address1" class="form-control" placeholder="Kasoa Kakraba">{{ entered_data.address1|default_if_none:'' }}</textarea>
                       </div>
                    </div>
                    <div class="col-12 col-sm-6">
                       <div class="form-group">
                          <label>Student Permanent Address</label>
-                         <textarea name="address2" class="form-control" placeholder="Kasoa Nyanyanu"></textarea>
+                         <textarea name="address2" class="form-control" placeholder="Kasoa Nyanyanu">{{ entered_data.address2|default_if_none:'' }}</textarea>
                       </div>
                    </div>
                    <div class="col-12">
