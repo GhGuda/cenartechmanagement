@@ -168,7 +168,11 @@
                                        </h2>
                                     </td>
                                     <td>{{student.class_id.name}}</td>
-                                    <td>{{student.status}}</td>
+                                    {% if student.status == "FAILED" %}
+                                        <td class="btn-danger">{{student.status}}</td>
+                                    {% else %}
+                                    <td class="btn-success">{{student.status}}</td>
+                                    {% endif %}
                                     <td>{{student.user.email}}</td>
                                     <td class="text-right">
                                        <div class="actions">
