@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # WKHTMLTOPDF_PATH = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
     
 
-WKHTMLTOPDF_PATH = '/usr/bin/wkhtmltopdf'
+WKHTMLTOPDF_PATH = config("WKHTMLTOPDF_PATH")
 
 SECRET_KEY = config("SECRET_KEY")
 

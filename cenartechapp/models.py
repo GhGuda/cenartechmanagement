@@ -86,6 +86,7 @@ class Student(models.Model):
     religion = models.CharField(max_length=100)
     phone = models.CharField(max_length=100, blank=True)
     gender = models.CharField(max_length=100)
+    status = models.CharField(max_length=50)
     father_name = models.CharField(max_length=100, blank=True)
     father_number = models.CharField(max_length=100, blank=True)
     father_email = models.CharField(max_length=100, blank=True)
