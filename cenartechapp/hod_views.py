@@ -172,10 +172,12 @@ def add_student(request):
             address1 = request.POST['address1']
             address2 = request.POST['address2']
             
+            
             if len(student_password) <= 7:
                 messages.error(request, "Password must be more than 7 letters long!")
                 return render(request, 'hod/add_student.html', {
-                    "entered_data": request.POST
+                    "entered_data": request.POST,
+                    "class": student_classes,
                 })
             
             if email=="" and CustomUser.objects.filter(email=""):
@@ -184,24 +186,28 @@ def add_student(request):
                 if CustomUser.objects.filter(email__iexact=email).exists():
                     messages.error(request, "Email already exists!")
                     return render(request, 'hod/add_student.html', {
-                        "entered_data": request.POST
+                        "entered_data": request.POST,
+                        "class": student_classes,
                     })
                 
             if gender == "Select Gender":
                 messages.error(request, "Select Student Gender!")
                 return render(request, 'hod/add_student.html', {
-                    "entered_data": request.POST
+                    "entered_data": request.POST,
+                    "class": student_classes,
                 })
             
             if class_id == "Select Class/Form":
                 messages.error(request, "Select Student Class/Form!")
                 return render(request, 'hod/add_student.html', {
-                    "entered_data": request.POST
+                    "entered_data": request.POST,
+                    "class": student_classes,  
                 })
             elif CustomUser.objects.filter(username__iexact=username).exists():
                 messages.error(request, "Username already exists!")
                 return render(request, 'hod/add_student.html', {
-                    "entered_data": request.POST
+                    "entered_data": request.POST,
+                    "class": student_classes,
                 })
             else:
                 # Send mail
@@ -1143,11 +1149,9 @@ def assign_staffs(request):
                 # Get the Class_Form instance by ID
                 class_form_instance = Class_Form.objects.get(id=class_form_name)
 
-                # Check if this class is already managed by any staff
                 staffs_with_class = Staff.objects.filter(class_managed=class_form_instance)
 
                 for staff_member in staffs_with_class:
-                    # Remove the class from this staff member's managed classes
                     staff_member.class_managed.remove(class_form_instance)
 
                     if not staff_member.class_managed.exists():
@@ -1164,7 +1168,7 @@ def assign_staffs(request):
                 class_form_instance.save()
                 staf.save()
 
-                messages.success(request, f"{class_form_instance.name} assigned to staff {staf.staff_name.first_name.capitalize()} {staf.staff_name.middle_name.capitalize()} {staf.staff_name.last_name.capitalize()}")
+                messages.success(request, f"{class_form_instance.name} assigned to staff {staf.staff_name.get_full_name().capitalize()}.")
                 return redirect(assign_staffs)
 
             elif action == "AssignToSubject":
@@ -1193,7 +1197,12 @@ def assign_staffs(request):
                         # Remove the subject from the current staff managing it
                         for current_staff in staff_with_subject:
                             current_staff.subject_teacher_subject.remove(subject_instance)
-                            current_staff.subject_teacher_class.remove(class_form_instance)
+                            
+                            remaining_subjects_in_class = current_staff.subject_teacher_subject.filter(class_Form=class_form_instance)
+                            
+                            if not remaining_subjects_in_class.exists():
+                                current_staff.subject_teacher_class.remove(class_form_instance)
+                            
                             sub4staff = Subject.objects.get(subject_name=subject_id, class_Form=class_form_instance, managed_by=current_staff)
                             sub4staff.managed_by = None
                             sub4staff.save()
@@ -1206,7 +1215,7 @@ def assign_staffs(request):
                     substaff.save()
                     new_staff.save()
 
-                    messages.success(request, f"{subject_instance.subject_name} for {class_form_instance.name} assigned to {new_staff.staff_name.first_name.capitalize()} {new_staff.staff_name.middle_name.capitalize()} {new_staff.staff_name.last_name.capitalize()}.")
+                    messages.success(request, f"{subject_instance.subject_name} for {class_form_instance.name} assigned to {new_staff.staff_name.get_full_name().capitalize()}.")
                     return redirect(assign_staffs)
                 except:
                     messages.error(request, f"{subject_id} is not associated to {class_form_instance} ")

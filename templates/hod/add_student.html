@@ -85,8 +85,8 @@
                          <label>Class/Form</label>
                         <select name="class"  class="form-control" required>
                             <option hidden>Select Class/Form</option>
-                            {% for class in class %}
-                                <option value={{class.id}} {% if entered_data.class == class.name %}selected{% endif %}>{{class.name}}</option>
+                            {% for classes in class %}
+                                <option value={{classes.id}} {% if entered_data.class == classes.id|stringformat:"s" %}selected{% endif %}>{{classes.name}}</option>
                             {% endfor %}
                         </select>
                       </div>
