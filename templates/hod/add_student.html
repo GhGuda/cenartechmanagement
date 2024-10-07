@@ -122,7 +122,7 @@
                    <div class="col-12 col-sm-6">
                       <div class="form-group">
                          <label>Student Image</label>
-                         <input type="file" name="profile_pic" accept="image/*" class="form-control">
+                         <input type="file" name="profile_pic" id="profile_pic" accept="image/*" class="form-control">
                       </div>
                    </div>
                    <div class="col-12">
@@ -187,5 +187,17 @@
        </div>
     </div>
  </div>
+
+ <script>
+   const inputFile = document.getElementById('profile_pic');
+
+   inputFile.addEventListener('change', function () {
+      const file = this.files[0];
+      if (file && file.size > 5 * 1024 * 1024) { // 5MB
+         alert('Profile picture is too large. Maximum size allowed is 5MB!');
+         this.value = ''; // Clear the input
+      }
+   });
+ </script>
  {% endif %}
 {% endblock content %}
