@@ -305,15 +305,15 @@ def send_all_results(request, class_id):
             except Exception as e:
                 messages.error(request, f"Error during sending: {str(e)}")
 
-    for student_name, status in status_tracker.items():
-        for student in students:
-            if status == "Sent":
-                student.status = "SENTINGNNNN"
-                student.save()
-            else:
-                student.status = "FAILEDGKJLKJLKJ"
-                student.save()
-                messages.error(request, f"Failed to send report card to {str(student_name).capitalize()}: {status}")
+    # for student_name, status in status_tracker.items():
+    #     for student in students:
+    #         if status == "Sent":
+    #             student.status = "SENTINGNNNN"
+    #             student.save()
+    #         else:
+    #             student.status = "FAILEDGKJLKJLKJ"
+    #             student.save()
+    #             messages.error(request, f"Failed to send report card to {str(student_name).capitalize()}: {status}")
             
     return redirect('staff_home')
 
@@ -441,10 +441,12 @@ def single_card(request, student):
                 students.save()
                 messages.success(request, f"Report card successfully sent to {str(students.user.get_full_name()).capitalize()}.")
             except:
+                students.status = "FAILED"
+                students.save()
                 messages.error(request, f"Error sending report card link to {students.user.get_full_name().capitalize()} via email!")
                 
         else:
-            students.status = "FAILED"
+            students.status = "NO EMAIL"
             students.save()
             messages.error(request, f"{str(students.user.get_full_name()).capitalize()}'s email is missing!")
     except:
