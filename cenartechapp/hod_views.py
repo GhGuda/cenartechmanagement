@@ -1281,6 +1281,9 @@ def add_term(request):
                 term.reopening_date = rdate
                 term.hod_remarks = hod_remark
                 term.cutOfPoint = cutoffpoint
+                for student in students:
+                    student.status = ""
+                    student.save()
                 delete_report_cards()
                 term.save()
             
@@ -1292,7 +1295,6 @@ def add_term(request):
                         student.total_marks_term_two = 0
                         student.total_marks_term_three = 0
                         student.overall_total_marks = 0
-                        student.status = ""
                         student.save()
     
                     messages.success(request, "Students have been promoted sucessfully!")
