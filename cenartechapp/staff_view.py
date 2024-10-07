@@ -307,10 +307,10 @@ def send_all_results(request, class_id):
 
     for student_name, status in status_tracker.items():
         if status == "Sent":
-            student.status = "SENT"
+            student.status = "SENTINGNNNN"
             student.save()
         else:
-            student.status = "FAILED"
+            student.status = "FAILEDGKJLKJLKJ"
             student.save()
             messages.error(request, f"Failed to send report card to {str(student_name).capitalize()}: {status}")
             
