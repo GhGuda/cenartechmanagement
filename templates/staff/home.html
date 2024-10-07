@@ -172,8 +172,12 @@
                                     {% if student.status %}
                                         {% if student.status == "FAILED" %}
                                             <td style="color:red">{{student.status}}</td>
+
+                                        {% elif student.status == "SENT" %}
+                                            <td style="color:green">{{student.status}}</td>
                                         {% else %}
-                                        <td style="color:green">{{student.status}}</td>
+
+                                        <td style="color:black">{{student.status}}</td>
                                         {% endif %}
                                     {% endif %}
                                     <td class="text-right">

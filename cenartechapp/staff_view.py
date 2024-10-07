@@ -86,7 +86,7 @@ def staff_home(request):
                         pass
                     else:
                         messages.error(request, f"No students registered in {student_class}!")
-            
+                        
                         
                 elif class_manager_action == "subject-class":
                     class_id = request.POST.get('class_form_subject')
