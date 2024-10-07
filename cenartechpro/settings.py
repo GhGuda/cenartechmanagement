@@ -18,8 +18,6 @@ from decouple import config, Csv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-
-
 # WKHTMLTOPDF_PATH = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
     
 
@@ -29,7 +27,6 @@ SECRET_KEY = config("SECRET_KEY")
 
 
 DEBUG = config('DEBUG', cast=bool)
-# DEBUG = True
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
@@ -48,10 +45,10 @@ INSTALLED_APPS = [
     'wkhtmltopdf',
 ]
 
-# CSRF_TRUSTED_ORIGINS = [
-#     'https://cenartechmanagement.top',
-#     'http://cenartechmanagement.top',
-# ]
+CSRF_TRUSTED_ORIGINS = [
+    'https://cenartechmanagement.top',
+    'http://cenartechmanagement.top',
+]
 
 # Increase POST data limit
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
@@ -60,9 +57,9 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 
-# SECURE_SSL_REDIRECT = True
-# USE_X_FORWARDED_HOST = True
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 
