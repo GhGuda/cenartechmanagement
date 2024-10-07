@@ -306,13 +306,14 @@ def send_all_results(request, class_id):
                 messages.error(request, f"Error during sending: {str(e)}")
 
     for student_name, status in status_tracker.items():
-        if status == "Sent":
-            student.status = "SENTINGNNNN"
-            student.save()
-        else:
-            student.status = "FAILEDGKJLKJLKJ"
-            student.save()
-            messages.error(request, f"Failed to send report card to {str(student_name).capitalize()}: {status}")
+        for student in students:
+            if status == "Sent":
+                student.status = "SENTINGNNNN"
+                student.save()
+            else:
+                student.status = "FAILEDGKJLKJLKJ"
+                student.save()
+                messages.error(request, f"Failed to send report card to {str(student_name).capitalize()}: {status}")
             
     return redirect('staff_home')
 
