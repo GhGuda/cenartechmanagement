@@ -1292,6 +1292,7 @@ def add_term(request):
                         student.total_marks_term_two = 0
                         student.total_marks_term_three = 0
                         student.overall_total_marks = 0
+                        student.status = ""
                         student.save()
     
                     messages.success(request, "Students have been promoted sucessfully!")
