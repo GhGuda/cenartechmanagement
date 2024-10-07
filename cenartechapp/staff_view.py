@@ -306,14 +306,13 @@ def send_all_results(request, class_id):
                 messages.error(request, f"Error during sending: {str(e)}")
 
     for student_name, status in status_tracker.items():
-        if student.user.email:
-            if status == "Sent":
-                student.status = "SENT"
-                student.save()
-            else:
-                student.status = "FAILED"
-                student.save()
-                messages.error(request, f"Failed to send report card to {str(student_name).capitalize()}: {status}")
+        if status == "Sent":
+            student.status = "SENT"
+            student.save()
+        else:
+            student.status = "FAILED"
+            student.save()
+            messages.error(request, f"Failed to send report card to {str(student_name).capitalize()}: {status}")
             
     return redirect('staff_home')
 
@@ -437,6 +436,8 @@ def single_card(request, student):
                 
                 smtp.send_message(msg)
                 smtp.quit()
+                students.status = "SENT"
+                students.save()
                 messages.success(request, f"Report card successfully sent to {str(students.user.get_full_name()).capitalize()}.")
             except:
                 messages.error(request, f"Error sending report card link to {students.user.get_full_name().capitalize()} via email!")
