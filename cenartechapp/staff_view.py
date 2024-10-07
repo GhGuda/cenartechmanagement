@@ -19,6 +19,7 @@ import os
 from django.core.files.storage import default_storage
 from email.message import EmailMessage
 from concurrent.futures import ThreadPoolExecutor
+from threading import Lock
 
 
 
@@ -289,8 +290,11 @@ def send_all_results(request, class_id):
     students = Student.objects.filter(class_id__managed_by=staff, class_id__name=class_id).exclude(user__is_active=False)
 
     status_tracker = {}
+    status_lock = Lock()
 
     with ThreadPoolExecutor(max_workers=10) as executor:
+         
+        
         futures = []
         for student in students:
             futures.append(executor.submit(send_report_card, student, request, status_tracker))
@@ -302,15 +306,15 @@ def send_all_results(request, class_id):
                 messages.error(request, f"Error during sending: {str(e)}")
 
     for student_name, status in status_tracker.items():
-        if status == "Sent":
-            messages.success(request, f"Report card successfully sent to {str(student_name).capitalize()}.")
-            student.status = "SENT"
-            student.save()
-        else:
-            messages.error(request, f"Failed to send report card to {str(student_name).capitalize()}: {status}")
-            student.status = "FAILED"
-            student.save()
-            return redirect('staff_home')
+        if student.user.email:
+            if status == "Sent":
+                student.status = "SENT"
+                student.save()
+            else:
+                student.status = "FAILED"
+                student.save()
+                messages.error(request, f"Failed to send report card to {str(student_name).capitalize()}: {status}")
+            
     return redirect('staff_home')
 
 
@@ -362,7 +366,7 @@ def single_card(request, student):
         
             try:
                 students = Student.objects.get(class_id__name=class_id, class_id__managed_by=staff, user__username=student)
-                break  # Exit the loop once the student is found
+                break
             except Student.DoesNotExist:
                 continue
             
@@ -427,16 +431,19 @@ def single_card(request, student):
                             <p>Best regards,</p>
                             <p><strong>{schoolname}</strong></p>
                         </body>
-                    </html>
+                    </html>l
                     """, subtype='html'
                 )
-
-                # Now, send the email
+                
                 smtp.send_message(msg)
                 smtp.quit()
-            except Exception as e:
-                messages.error(request, f"Error sending report card link to {students.user.get_full_name()} via email: {str(e)}")
+                messages.success(request, f"Report card successfully sent to {str(students.user.get_full_name()).capitalize()}.")
+            except:
+                messages.error(request, f"Error sending report card link to {students.user.get_full_name().capitalize()} via email!")
+                
         else:
+            students.status = "FAILED"
+            students.save()
             messages.error(request, f"{str(students.user.get_full_name()).capitalize()}'s email is missing!")
     except:
         messages.error(request, "Error generating report card for students!")

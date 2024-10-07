@@ -17,7 +17,7 @@
                     {% endif %}
                 {% endfor %}
 
-                <script>
+                {% comment %} <script>
                     // Wait until the document is fully loaded
                     document.addEventListener("DOMContentLoaded", function() {
                         // Select all elements with the class 'msg'
@@ -30,4 +30,4 @@
                             }, 4500); // 5000ms = 5 seconds
                         });
                     });
-                </script>
+                </script> {% endcomment %}

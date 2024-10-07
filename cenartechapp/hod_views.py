@@ -177,9 +177,9 @@ def add_student(request):
             if profile_pic:
                 if profile_pic.size > max_file_size:
                     messages.error(request, "Profile picture is too large. Maximum size allowed is 5MB!")
-                    return render(request, 'hod/add_staff.html', {
+                    return render(request, 'hod/add_student.html', {
                         "class": student_classes,
-                        "entered_data": request.POST
+                        "entered_data": request.POST,
                     })
             
             

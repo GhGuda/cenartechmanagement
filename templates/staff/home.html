@@ -152,8 +152,8 @@
                                <tr>
                                   <th>Name</th>
                                   <th>Class/Form</th>
-                                  <th>Status</th>
                                   <th>Email</th>
+                                  <th>Status</th>
                                   <th class="text-right">Action</th>
                                </tr>
                             </thead>
@@ -168,12 +168,14 @@
                                        </h2>
                                     </td>
                                     <td>{{student.class_id.name}}</td>
-                                    {% if student.status == "FAILED" %}
-                                        <td style="color:red">{{student.status}}</td>
-                                    {% else %}
-                                    <td style="color:green">{{student.status}}</td>
-                                    {% endif %}
                                     <td>{{student.user.email}}</td>
+                                    {% if student.status %}
+                                        {% if student.status == "FAILED" %}
+                                            <td style="color:red">{{student.status}}</td>
+                                        {% else %}
+                                        <td style="color:green">{{student.status}}</td>
+                                        {% endif %}
+                                    {% endif %}
                                     <td class="text-right">
                                        <div class="actions">
                                           <a href="{% url 'add_marks' student.user %}" class="btn btn-sm bg-danger-light">
