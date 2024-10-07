@@ -172,6 +172,16 @@ def add_student(request):
             address1 = request.POST['address1']
             address2 = request.POST['address2']
             
+            max_file_size = 5 * 1024 * 1024
+            
+            if profile_pic:
+                if profile_pic.size > max_file_size:
+                    messages.error(request, "Profile picture is too large. Maximum size allowed is 5MB!")
+                    return render(request, 'hod/add_staff.html', {
+                        "class": student_classes,
+                        "entered_data": request.POST
+                    })
+            
             
             if len(student_password) <= 7:
                 messages.error(request, "Password must be more than 7 letters long!")
@@ -699,6 +709,18 @@ def add_staff(request):
             country = request.POST['country']
             qualification = request.POST['qualification']
             experience = request.POST['experience']
+            
+            
+            max_file_size = 5 * 1024 * 1024
+            
+            if profile_pic:
+                if profile_pic.size > max_file_size:
+                    messages.error(request, "Profile picture is too large. Maximum size allowed is 5MB!")
+                    return render(request, 'hod/add_staff.html', {
+                        "class": class_forms,
+                        "subject": subject,
+                        "entered_data": request.POST
+                    })
             
             if stafftype == "Class Manager":
                 # Call `.exists()` to check if the subject exists
