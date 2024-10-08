@@ -430,7 +430,7 @@ def single_card(request, student):
                             <p>Best regards,</p>
                             <p><strong>{schoolname}</strong></p>
                         </body>
-                    </html>l
+                    </html>
                     """, subtype='html'
                 )
                 
