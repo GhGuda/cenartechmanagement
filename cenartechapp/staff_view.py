@@ -19,7 +19,6 @@ import os
 from django.core.files.storage import default_storage
 from email.message import EmailMessage
 from concurrent.futures import ThreadPoolExecutor
-from threading import Lock
 
 
 
@@ -57,6 +56,10 @@ def staff_home(request):
     staff_sub = staff.subject_teacher_subject.all()
     term = Term.objects.first()
     
+    
+    class_id = request.GET.get('class_id')
+    action = request.GET.get('action')
+    
     # Use set to get unique class names and subject names
     unique_staff_sub_class = set(staff_sub_class.values_list('name', flat=True))
     unique_staff_sub = set(staff_sub.values_list('subject_name', flat=True))
@@ -67,6 +70,7 @@ def staff_home(request):
     subject = None
     is_class_manager = None
     is_subject=None
+    show_status_column=None
     try:
         if action is not None and request.method == 'POST':
             class_manager_action = request.POST.get('class_manager_action')
@@ -79,9 +83,12 @@ def staff_home(request):
                         return redirect(staff_home)
                     student_class = Class_Form.objects.get(id=class_id)
                     students = Student.objects.filter(class_id__name=student_class).exclude(user__is_active=False)
+                                      
                     for item in students:
                         is_class_manager = item.class_id.managed_by == staff
-                
+                        if item.status:
+                            show_status_column = any(item.status )
+                        
                     if students.exists():
                         pass
                     else:
@@ -106,8 +113,10 @@ def staff_home(request):
                     for item in students:
                         is_subject = is_class_manager = any(subject.managed_by == staff for subject in item.subjects.all())
                         is_class_manager = item.class_id.managed_by == staff
+                        if item.status:
+                            show_status_column = any(item.status )
                         
-                
+                    
                     try:
                         if subject.managed_by == staff:
                             if students.exists():
@@ -147,6 +156,7 @@ def staff_home(request):
                     is_subject = is_class_manager = any(subject.managed_by == staff for subject in item.subjects.all())
                     is_class_manager = item.class_id.managed_by == staff
                     
+                    
                 
                 if subject.managed_by == staff:
                     if students.exists():
@@ -170,6 +180,7 @@ def staff_home(request):
         'subject': subject,
         'is_class_manager': is_class_manager,
         'is_subject': is_subject,
+        'show_status_column': show_status_column,
     }
 
     if students:
@@ -290,7 +301,6 @@ def send_all_results(request, class_id):
     students = Student.objects.filter(class_id__managed_by=staff, class_id__name=class_id).exclude(user__is_active=False)
 
     status_tracker = {}
-    status_lock = Lock()
 
     with ThreadPoolExecutor(max_workers=10) as executor:
          
@@ -304,17 +314,6 @@ def send_all_results(request, class_id):
                 future.result()
             except Exception as e:
                 messages.error(request, f"Error during sending: {str(e)}")
-
-    # for student_name, status in status_tracker.items():
-    #     for student in students:
-    #         if status == "Sent":
-    #             student.status = "SENTINGNNNN"
-    #             student.save()
-    #         else:
-    #             student.status = "FAILEDGKJLKJLKJ"
-    #             student.save()
-    #             messages.error(request, f"Failed to send report card to {str(student_name).capitalize()}: {status}")
-            
     return redirect('staff_home')
 
 

@@ -153,7 +153,9 @@
                                   <th>Name</th>
                                   <th>Class/Form</th>
                                   <th>Email</th>
-                                  <th>Status</th>
+                                    {% if show_status_column %}
+                                        <th>Status</th>
+                                    {% endif %}
                                   <th class="text-right">Action</th>
                                </tr>
                             </thead>
@@ -167,8 +169,8 @@
                                           <b>{{student.user.first_name|capfirst}} {{student.user.last_name|capfirst}}</b>
                                        </h2>
                                     </td>
-                                    <td>{{student.class_id.name}}</td>
-                                    <td>{{student.user.email}}</td>
+                                    <td>{{student.class_id.name|truncatechars:25}}</td>
+                                    <td>{{student.user.email|truncatechars:15}}</td>
                                     {% if student.status %}
                                         {% if student.status == "FAILED" %}
                                             <td style="color:red">{{student.status}}</td>

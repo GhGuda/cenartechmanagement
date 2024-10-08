@@ -6,10 +6,10 @@ from decouple import config, Csv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# WKHTMLTOPDF_PATH = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+WKHTMLTOPDF_PATH = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
     
 
-WKHTMLTOPDF_PATH = config("WKHTMLTOPDF_PATH")
+# WKHTMLTOPDF_PATH = config("WKHTMLTOPDF_PATH")
 
 SECRET_KEY = config("SECRET_KEY")
 
@@ -33,21 +33,21 @@ INSTALLED_APPS = [
     'wkhtmltopdf',
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://cenartechmanagement.top',
-    'http://cenartechmanagement.top',
-]
+# CSRF_TRUSTED_ORIGINS = [
+#     'https://cenartechmanagement.top',
+#     'http://cenartechmanagement.top',
+# ]
 
-# Increase POST data limit
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
+# # Increase POST data limit
+# DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
-# Increase file upload size limit
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
+# # Increase file upload size limit
+# FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 
-SECURE_SSL_REDIRECT = True
-USE_X_FORWARDED_HOST = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# SECURE_SSL_REDIRECT = True
+# USE_X_FORWARDED_HOST = True
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 
@@ -164,9 +164,9 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
-SCHOOL_NAME = config('SCHOOL_NAME')
-SCHOOL_SLOGAN = config('SCHOOL_SLOGAN')
-SCHOOL_LOCATION = config('SCHOOL_LOCATION')
-SCHOOL_NUM = config('SCHOOL_NUM')
-SCHOOL_WEB = config('SCHOOL_WEB')
-SCHOOL_MARKS = config('SCHOOL_MARKS')
+SCHOOL_NAME = config('SCHOOL_NAMES')
+SCHOOL_SLOGAN = config('SCHOOL_SLOGANS')
+SCHOOL_LOCATION = config('SCHOOL_LOCATIONS')
+SCHOOL_NUM = config('SCHOOL_NUMS')
+SCHOOL_WEB = config('SCHOOL_WEBS')
+SCHOOL_MARKS = config('SCHOOL_MARKSS')
