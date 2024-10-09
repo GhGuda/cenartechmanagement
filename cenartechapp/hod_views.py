@@ -147,7 +147,10 @@ def add_student(request):
 
     if request.method == "POST":
         try:
-            profile_pic = request.FILES.get('profile_pic', 'blank.webp')
+            profile_pic = request.FILES.get('profile_pic')
+            if not profile_pic:
+                profile_pic = 'blank.webp'
+                
             fname = request.POST["fname"].lower().replace(' ', '')
             lname = request.POST["lname"].lower().replace(' ', '')
             mname = request.POST["mname"].lower()
@@ -172,15 +175,14 @@ def add_student(request):
             address1 = request.POST['address1']
             address2 = request.POST['address2']
             
-            # max_file_size = 5 * 1024 * 1024
-            
-            # if profile_pic:
-            #     if profile_pic.size > max_file_size:
-            #         messages.error(request, "Profile picture is too large. Maximum size allowed is 5MB!")
-            #         return render(request, 'hod/add_student.html', {
-            #             "class": student_classes,
-            #             "entered_data": request.POST,
-            #         })
+            if profile_pic != 'blank.webp':
+                max_file_size = 1 * 1024 * 1024  # 5MB limit
+                if profile_pic.size > max_file_size:
+                    messages.error(request, "Profile picture is too large. Maximum size allowed is 1MB!")
+                    return render(request, 'hod/add_student.html', {
+                        "class": student_classes,
+                        "entered_data": request.POST,
+                    })
             
             
             if len(student_password) <= 7:
@@ -688,6 +690,9 @@ def add_staff(request):
     try:
         if request.method == "POST":
             profile_pic = request.FILES.get('profile_pic')
+            if not profile_pic:
+                profile_pic = 'blank.webp'
+                
             fname = request.POST["fname"].capitalize().replace(' ', '')
             lname = request.POST["lname"].capitalize().replace(' ', '')
             mname = request.POST["mname"].capitalize()
@@ -711,11 +716,10 @@ def add_staff(request):
             experience = request.POST['experience']
             
             
-            max_file_size = 5 * 1024 * 1024
-            
-            if profile_pic:
+            if profile_pic != 'blank.webp':
+                max_file_size = 1 * 1024 * 1024  # 5MB limit
                 if profile_pic.size > max_file_size:
-                    messages.error(request, "Profile picture is too large. Maximum size allowed is 5MB!")
+                    messages.error(request, "Profile picture is too large. Maximum size allowed is 1MB!")
                     return render(request, 'hod/add_staff.html', {
                         "class": class_forms,
                         "subject": subject,
@@ -877,8 +881,6 @@ def add_staff(request):
                             })
                         
                     if email_sent or (not email):
-                        if profile_pic is None:
-                            profile_pic = "blank.webp"
 
                         staff_user = CustomUser.objects.create_user(
                             username=username,
