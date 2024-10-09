@@ -146,7 +146,7 @@ def add_student(request):
     student_classes = Class_Form.objects.all().exclude(name="Completed Class")
 
     if request.method == "POST":
-        # try:
+        try:
             profile_pic = request.FILES.get('profile_pic', 'blank.webp')
             fname = request.POST["fname"].lower().replace(' ', '')
             lname = request.POST["lname"].lower().replace(' ', '')
@@ -402,11 +402,11 @@ def add_student(request):
                     messages.success(request, "Student added successfully!")
                     return redirect('add_student')
 
-        # except:
-        #     messages.error(request, f"Error: Failed to add student!")
-        #     return render(request, 'hod/add_student.html', {
-        #         "entered_data": request.POST
-        #     })
+        except:
+            messages.error(request, f"Error: Failed to add student!")
+            return render(request, 'hod/add_student.html', {
+                "entered_data": request.POST
+            })
 
     context = {
         "class": student_classes,
