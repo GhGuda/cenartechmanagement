@@ -33,21 +33,21 @@ INSTALLED_APPS = [
     'wkhtmltopdf',
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://cenartechmanagement.top',
-    'http://cenartechmanagement.top',
-]
+# CSRF_TRUSTED_ORIGINS = [
+#     'https://cenartechmanagement.top',
+#     'http://cenartechmanagement.top',
+# ]
 
-# Increase POST data limit
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
+# # Increase POST data limit
+# DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
-# Increase file upload size limit
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
+# # Increase file upload size limit
+# FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 
-SECURE_SSL_REDIRECT = True
-USE_X_FORWARDED_HOST = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# SECURE_SSL_REDIRECT = True
+# USE_X_FORWARDED_HOST = True
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 
