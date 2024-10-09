@@ -236,6 +236,7 @@ def see_results(request):
                         "school_slogan":school_slogan,
                         "school_location":school_location,
                         "school_number":school_number,
+                        "schoolweb":schoolweb,
                     })
 
                     pdfkit_options = {
