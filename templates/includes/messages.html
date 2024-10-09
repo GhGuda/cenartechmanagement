@@ -17,17 +17,14 @@
                     {% endif %}
                 {% endfor %}
 
-                {% comment %} <script>
-                    // Wait until the document is fully loaded
+                <script>
                     document.addEventListener("DOMContentLoaded", function() {
-                        // Select all elements with the class 'msg'
                         var messages = document.querySelectorAll('.fade');
                         
-                        // Loop through each element and set a timeout to hide it after a few seconds
                         messages.forEach(function(message) {
                             setTimeout(function() {
                                 message.style.display = 'none';
-                            }, 4500); // 5000ms = 5 seconds
+                            }, 4500);
                         });
                     });
-                </script> {% endcomment %}
+                </script>

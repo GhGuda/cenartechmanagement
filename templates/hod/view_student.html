@@ -43,7 +43,7 @@
                            </td>
                            <td>{{student.class_id.name}}</td>
                            <td>{{student.phone}}</td>
-                           <td>{{student.user.email}}</td>
+                           <td>{{student.user.email|truncatechars:15}}</td>
                            <td class="text-right">
                               <div class="actions">
                                  <a href="{% url "edit_student" student.user %}" class="btn btn-sm bg-success-light mr-2">

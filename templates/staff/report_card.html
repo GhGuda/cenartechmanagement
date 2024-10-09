@@ -66,8 +66,8 @@
             text-align: center;
         }
         .sign {
-            width: 60px;
-            height: 40px;
+            width: 50px;
+            height: 25px;
         }
         .subject {
             text-align: start;
@@ -212,7 +212,9 @@
             <div>CLASS TEACHER'S REMARKS: {{ student.remarks|upper }}</div>
             <div>HEADTEACHER'S REMARKS: {{ term.hod_remarks|upper }}</div>
             <div>INTEREST: {{ student.interest|upper }}</div>
-            <div>HEADTEACHER'S SIGNATURE: <img src="{{schoolweb}}/static//assets/signature.png" alt="Headteacher's Signature"></div>
+            <div id="signature-container">
+                HEADTEACHER'S SIGNATURE: <img src="{{schoolweb}}/static//assets/signature.png" class="sign" alt="Headteacher's Signature">
+            </div>
         </div>
         <div class="remarks">
             <div>RANGE:</div>
@@ -248,5 +250,22 @@
     {% else %}
         <p style="text-align:center; font-size:2rem;">No results available😫</p>
     {% endif %}
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var signatureImage = document.querySelector('#signature-container img');
+    
+            // Prevent right-click context menu on the image
+            signatureImage.addEventListener('contextmenu', function (event) {
+                event.preventDefault();
+            });
+    
+            // Disable dragging the image
+            signatureImage.addEventListener('dragstart', function (event) {
+                event.preventDefault();
+            });
+        });
+    </script>
 </body>
 </html>

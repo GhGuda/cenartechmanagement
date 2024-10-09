@@ -339,11 +339,11 @@ def generate_pdf(template_name, context):
     config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
     
     pdfkit_options = {
-                    'enable-local-file-access': '',
-                    'no-outline': None,
-                    'encoding': "UTF-8",
-                    'quiet': '',
-                    }
+        'enable-local-file-access': '',
+        'no-outline': None,
+        'encoding': "UTF-8",
+        'quiet': '',
+    }
     pdf = pdfkit.from_string(html, False, configuration=config, options=pdfkit_options)  # False returns the PDF as a byte string
     return pdf
 

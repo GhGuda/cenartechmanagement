@@ -66,8 +66,8 @@
             text-align: center;
         }
         .sign {
-            width: 60px;
-            height: 40px;
+            width: 50px;
+            height: 25px;
         }
         .subject {
             text-align: start;
@@ -155,22 +155,6 @@
         {% endif %}
         
     </div>
-
-
-    <script>
-        // Wait until the document is fully loaded
-        document.addEventListener("DOMContentLoaded", function() {
-            // Select all elements with the class 'msg'
-            var messages = document.querySelectorAll('.msg');
-            
-            // Loop through each element and set a timeout to hide it after a few seconds
-            messages.forEach(function(message) {
-                setTimeout(function() {
-                    message.style.display = 'none';
-                }, 3000); // 5000ms = 5 seconds
-            });
-        });
-    </script>
     
     {% if grouped_results.items %}
     {% for student, results in grouped_results.items %}
@@ -225,7 +209,7 @@
             <div>CLASS TEACHER'S REMARKS: {{ student.remarks|upper }}</div>
             <div>INTEREST: {{ student.interest|upper }}</div>
             <div id="signature-container">
-                HEADTEACHER'S SIGNATURE: <img src="{{schoolweb}}/static//assets/signature.png" alt="Headteacher's Signature">
+                HEADTEACHER'S SIGNATURE: <img src="{{schoolweb}}/static//assets/signature.png" class="sign" alt="Headteacher's Signature">
             </div>            
         </div>
         <div class="remarks">

@@ -46,9 +46,11 @@
     </td>
     <td>
         {% if staff.stafftype == "Class Manager" %}
+            C.M(
             {% for class in staff.class_managed.all %}
-                C.M({{ class.name }}{% if not forloop.last %}, {% endif %})
+                {{ class.name }}{% if not forloop.last %}, {% endif %}
             {% endfor %}
+            )
         {% else %}
             Subject Teacher
         {% endif %}
