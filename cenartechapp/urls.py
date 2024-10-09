@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views, hod_views, staff_view, student_view
-from django.conf.urls import handler403, handler500
+from django.conf.urls import handler403, handler500, handler404
 
 urlpatterns = [
     # path('base/', views.base, name="base"),
@@ -64,3 +64,4 @@ urlpatterns = [
 
 handler403 = 'cenartechapp.views.custom_403'
 handler500 = 'cenartechapp.views.custom_500'
+handler404 = 'cenartechapp.views.custom_404'
