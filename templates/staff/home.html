@@ -122,25 +122,66 @@
                             <h5 class="card-title">Students List</h5>
                             {% endif %}
                         </div>
-
+    
                         {% if is_class_manager %}
                             {% if students %}
                             <div class="text-center">
-                                <a id="sendAllResults" href="{% url 'send_all_results' student_class %}" style="background:green; border-radius:5px; padding:.2rem; color:white;">
+                                <button id="sendAllResults" style="background:green; border-radius:5px; padding:.2rem; color:white;">
                                     Send All Results
-                                </a>
-                                
+                                </button>
                             </div>
-                        
-                                
-                                <script>
-                                    document.getElementById("sendAllResults").addEventListener("click", function() {
-                                        this.textContent = "Sending...⬆️";
-                                        this.style.background = "gray";
-                                        this.style.pointerEvents = "none";
-                                        this.style.opacity = "0.6"; 
+    
+                            <script>
+                                document.getElementById("sendAllResults").addEventListener("click", function() {
+                                    const button = this;
+                                    button.textContent = "Sending...⬆️";
+                                    button.style.background = "gray";
+                                    button.style.pointerEvents = "none";
+                                    button.style.opacity = "0.6";
+    
+                                    fetch("{% url 'send_all_results' student_class %}", {
+                                        method: "POST",
+                                        headers: {
+                                            "X-CSRFToken": "{{ csrf_token }}",
+                                            "Content-Type": "application/json"
+                                        },
+                                        credentials: "same-origin",
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        // Reset the button
+                                        button.textContent = "Send All Results";
+                                        button.style.background = "green";
+                                        button.style.pointerEvents = "auto";
+                                        button.style.opacity = "1";
+    
+                                        // Loop through the status tracker and update the UI
+                                        const statusTracker = data.status_tracker;
+                                        Object.keys(statusTracker).forEach(studentName => {
+                                            const status = statusTracker[studentName];
+                                            const statusElement = document.querySelector(`[data-student-name="${studentName}"] .status`);
+    
+                                            if (status.includes("Failed")) {
+                                                statusElement.textContent = "FAILED";
+                                                statusElement.style.color = "red";
+                                            } else {
+                                                statusElement.textContent = "SENT";
+                                                statusElement.style.color = "green";
+                                            }
+                                        });
+    
+                                        alert("All results have been processed.");
+                                    })
+                                    .catch(error => {
+                                        console.error("Error:", error);
+                                        button.textContent = "Send All Results";
+                                        button.style.background = "green";
+                                        button.style.pointerEvents = "auto";
+                                        button.style.opacity = "1";
+                                        alert("Failed to send some results. Please check the status.");
                                     });
-                                </script>
+                                });
+                            </script>
                             {% endif %}
                         {% endif %}
                     </div>
@@ -149,72 +190,61 @@
                     <div class="table-responsive lesson">
                         <table id="table_id" class="table table-hover table-center mb-0">
                             <thead>
-                               <tr>
-                                  <th>Name</th>
-                                  <th>Class/Form</th>
-                                  <th>Email</th>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Class/Form</th>
+                                    <th>Email</th>
                                     {% if show_status_column %}
                                         <th>Status</th>
                                     {% endif %}
-                                  <th class="text-right">Action</th>
-                               </tr>
+                                    <th class="text-right">Action</th>
+                                </tr>
                             </thead>
                             <tbody>
-                              {% for student in students %}
-                                 <tr>
-                                    <td>
-                                       <h2 class="table-avatar">
-                                          <a class="avatar avatar-sm mr-2"><img class="avatar-img rounded-circle" src="{{student.user.profile_pic.url}}" alt="User Image"></a>
-                                         
-                                          <b>{{student.user.first_name|capfirst}} {{student.user.last_name|capfirst}}</b>
-                                       </h2>
-                                    </td>
-                                    <td>{{student.class_id.name}}</td>
-                                    <td>{{student.user.email|truncatechars:15}}</td>
-                                    {% if student.status %}
-                                        {% if student.status == "FAILED" %}
-                                            <td style="color:red">{{student.status}}</td>
-
-                                        {% elif student.status == "SENT" %}
-                                            <td style="color:green">{{student.status}}</td>
-                                        {% else %}
-
-                                        <td style="color:black">{{student.status}}</td>
-                                        {% endif %}
-                                    {% endif %}
-                                    <td class="text-right">
-                                       <div class="actions">
-                                          <a href="{% url 'add_marks' student.user %}" class="btn btn-sm bg-danger-light">
-                                            Add Marks  
-                                          </a>
-                                       </div>
-                                       
-                                    </td>
-                                 </tr>
-                              {% endfor %}
+                                {% for student in students %}
+                                    <tr data-student-name="{{ student.user.get_full_name }}">
+                                        <td>
+                                            <h2 class="table-avatar">
+                                                <a class="avatar avatar-sm mr-2"><img class="avatar-img rounded-circle" src="{{ student.user.profile_pic.url }}" alt="User Image"></a>
+                                                <b>{{ student.user.first_name|capfirst }} {{ student.user.last_name|capfirst }}</b>
+                                            </h2>
+                                        </td>
+                                        <td>{{ student.class_id.name }}</td>
+                                        <td>{{ student.user.email|truncatechars:15 }}</td>
+                                        <td class="status">
+                                            {% if student.status %}
+                                                {% if student.user.email %}
+                                                    {% if student.status == "FAILED" %}
+                                                        <td style="color:red">{{ student.status }}</td>
+                                                    {% elif student.status == "SENT" %}
+                                                        <td style="color:green">{{ student.status }}</td>
+                                                    {% else %}
+                                                        <td style="color:black">{{ student.status }}</td>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <td style="color:gray">No Email</td>
+                                                {% endif %}
+                                            {% else %}
+                                                <td style="color:black">Pending</td>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-right">
+                                            <div class="actions">
+                                                <a href="{% url 'add_marks' student.user %}" class="btn btn-sm bg-danger-light">
+                                                    Add Marks
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
                             </tbody>
-                         </table>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<script>
-    // Select all elements with the class 'send-result'
-    const sendResultButtons = document.querySelectorAll('.send-result');
-
-    // Loop through all selected elements and add the click event listener
-    sendResultButtons.forEach(function(button) {
-        button.addEventListener("click", function() {
-            this.textContent = "Sending...⬆️";
-            this.style.background = "gray";
-            this.style.pointerEvents = "none";
-            this.style.opacity = "0.6"; 
-        });
-    });
-</script>
+    
 {% endif %}
 {% endblock content %}
 

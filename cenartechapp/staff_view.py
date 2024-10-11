@@ -19,7 +19,7 @@ import os
 from django.core.files.storage import default_storage
 from email.message import EmailMessage
 from concurrent.futures import ThreadPoolExecutor
-
+from django.http import JsonResponse
 
 
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
@@ -116,21 +116,14 @@ def staff_home(request):
                         if item.status:
                             show_status_column = any(item.status )
                         
-                    
-                    try:
                         if subject.managed_by == staff:
                             if students.exists():
                                 pass
                             else:
-                                
                                 messages.error(request, f"No students registered in {student_class}!")
                         else:
                             messages.error(request, f"You don't have access to students registered in {subject}!")
                             return redirect(staff_home)
-                            
-                    except:
-                        messages.error(request, f"Please select subject!")
-                        return redirect(staff_home)
                         
             
             if staff.stafftype == "Subject Teacher":
@@ -296,7 +289,7 @@ def see_results(request):
 @login_required(login_url="/")
 def send_all_results(request, class_id):
     if request.user.user_type != "STAFF":
-        return HttpResponse("Unauthorized", status=404)
+        return JsonResponse({"error": "Unauthorized"}, status=403)
 
     staff = get_object_or_404(Staff, staff_name=request.user)
     students = Student.objects.filter(class_id__managed_by=staff, class_id__name=class_id).exclude(user__is_active=False)
@@ -304,18 +297,16 @@ def send_all_results(request, class_id):
     status_tracker = {}
 
     with ThreadPoolExecutor(max_workers=10) as executor:
-         
+        futures = [executor.submit(send_report_card, student, request, status_tracker) for student in students]
         
-        futures = []
-        for student in students:
-            futures.append(executor.submit(send_report_card, student, request, status_tracker))
-
         for future in futures:
             try:
                 future.result()
             except Exception as e:
-                messages.error(request, f"Error during sending: {str(e)}")
-    return redirect('staff_home')
+                # This catches any error and appends to the message
+                messages.error(request, f"Error sending report card: {str(e)}")
+
+    return JsonResponse({"status_tracker": status_tracker})
 
 
 
@@ -437,18 +428,12 @@ def single_card(request, student):
                 
                 smtp.send_message(msg)
                 smtp.quit()
-                students.status = "SENT"
-                students.save()
-                messages.success(request, f"Report card successfully sent to {str(students.user.get_full_name()).capitalize()}.")
+                
             except:
-                students.status = "FAILED"
-                students.save()
-                messages.error(request, f"Error sending report card link to {students.user.get_full_name().capitalize()} via email!")
+                pass
                 
         else:
-            students.status = "NO EMAIL"
-            students.save()
-            messages.error(request, f"{str(students.user.get_full_name()).capitalize()}'s email is missing!")
+            pass
     except:
         messages.error(request, "Error generating report card for students!")
     return redirect('staff_home')
