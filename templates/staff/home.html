@@ -213,19 +213,13 @@
                                         <td>{{ student.user.email|truncatechars:15 }}</td>
                                         <td class="status">
                                             {% if student.status %}
-                                                {% if student.user.email %}
-                                                    {% if student.status == "FAILED" %}
-                                                        <td style="color:red">{{ student.status }}</td>
-                                                    {% elif student.status == "SENT" %}
-                                                        <td style="color:green">{{ student.status }}</td>
-                                                    {% else %}
-                                                        <td style="color:black">{{ student.status }}</td>
-                                                    {% endif %}
+                                                {% if student.status == "FAILED" %}
+                                                    <span style="color:red">{{ student.status }}</span>
+                                                {% elif student.status == "SENT" %}
+                                                    <span style="color:green">{{ student.status }}</span>
                                                 {% else %}
-                                                    <td style="color:gray">No Email</td>
+                                                    <span style="color:black">{{ student.status }}</span>
                                                 {% endif %}
-                                            {% else %}
-                                                <td style="color:black">Pending</td>
                                             {% endif %}
                                         </td>
                                         <td class="text-right">

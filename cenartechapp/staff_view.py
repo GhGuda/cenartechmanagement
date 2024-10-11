@@ -116,14 +116,21 @@ def staff_home(request):
                         if item.status:
                             show_status_column = any(item.status )
                         
+                    
+                    try:
                         if subject.managed_by == staff:
                             if students.exists():
                                 pass
                             else:
+                                
                                 messages.error(request, f"No students registered in {student_class}!")
                         else:
                             messages.error(request, f"You don't have access to students registered in {subject}!")
                             return redirect(staff_home)
+                            
+                    except:
+                        messages.error(request, f"Please select subject!")
+                        return redirect(staff_home)
                         
             
             if staff.stafftype == "Subject Teacher":
@@ -180,6 +187,7 @@ def staff_home(request):
         return render(request, "staff/home.html", data)
     else:
         return render(request, 'staff/select_class.html', data)
+
 
 
 
@@ -303,7 +311,6 @@ def send_all_results(request, class_id):
             try:
                 future.result()
             except Exception as e:
-                # This catches any error and appends to the message
                 messages.error(request, f"Error sending report card: {str(e)}")
 
     return JsonResponse({"status_tracker": status_tracker})
@@ -314,9 +321,19 @@ def send_all_results(request, class_id):
 
 def send_report_card(student, request, status_tracker):
     try:
-        single_card(request, student.user.username)
-        status_tracker[student.user.get_full_name()] = "Sent"
+        if student.user.email:
+            single_card(request, student.user.username)
+            student.status = "SENT"
+            student.save()
+            status_tracker[student.user.get_full_name()] = "Sent"
+        else:
+            single_card(request, student.user.username)
+            student.status = "NO EMAIL"
+            student.save()
+            status_tracker[student.user.get_full_name()] = "Sent" 
     except Exception as e:
+        student.status = "FAILED"
+        student.save()
         status_tracker[student.user.get_full_name()] = f"Failed: {str(e)}"
 
 
@@ -431,9 +448,6 @@ def single_card(request, student):
                 
             except:
                 pass
-                
-        else:
-            pass
     except:
         messages.error(request, "Error generating report card for students!")
     return redirect('staff_home')
