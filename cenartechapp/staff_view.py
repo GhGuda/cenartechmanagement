@@ -129,7 +129,7 @@ def staff_home(request):
                             return redirect(staff_home)
                             
                     except:
-                        messages.error(request, f"Please select subject!")
+                        messages.error(request, f"Subject did not match the selected class!")
                         return redirect(staff_home)
                         
             

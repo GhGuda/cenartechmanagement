@@ -1,9 +1,7 @@
 from django.urls import path
 from . import views, hod_views, staff_view, student_view
-from django.conf.urls import handler403, handler500, handler404
 
 urlpatterns = [
-    # path('base/', views.base, name="base"),
     path('', views.Login, name="login"),
     path('doLogout', views.doLogout, name="logout"),
     path('doLogin', views.doLogin, name="doLogin"),
@@ -22,8 +20,10 @@ urlpatterns = [
     
     path('HOD/add/student', hod_views.add_student, name="add_student"),
     path('HOD/view/student', hod_views.view_student, name="view_student"),
+    path('HOD/view/old/students', hod_views.old_student, name="old_student"),
     path('HOD/edit/student/<user_name>', hod_views.edit_student, name="edit_student"),
     path('HOD/delete/student/<user_name>', hod_views.delete_student, name="delete_student"),
+    path('HOD/delete/old/student/<user_name>', hod_views.delete_old_student, name="delete_old_student"),
     path('HOD/student/details/<user_name>', hod_views.student_details, name="student_details"),
     
     
@@ -60,8 +60,3 @@ urlpatterns = [
     
     
 ]
-
-
-handler403 = 'cenartechapp.views.custom_403'
-handler500 = 'cenartechapp.views.custom_500'
-handler404 = 'cenartechapp.views.custom_404'

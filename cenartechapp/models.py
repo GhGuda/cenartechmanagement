@@ -42,7 +42,7 @@ class Staff(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return f"Staff {self.staff_name.username} from {self.address}"
+        return f"Staff {self.staff_name.get_full_name()} from {self.address}"
 
 
     
@@ -100,6 +100,7 @@ class Student(models.Model):
     interest = models.CharField(max_length=255, blank=True)
     conduct = models.TextField(default="Very Good")
     remarks = models.TextField(default="Very Good")
+    year_completed = models.CharField(max_length=100, blank=True)
     year_stopped = models.CharField(max_length=100, blank=True)
     term_stopped = models.CharField(max_length=100, blank=True)
     attendance = models.CharField(max_length=100)
@@ -318,7 +319,7 @@ class StudentResult(models.Model):
         self.student.save()
 
     def __str__(self):
-        return f"{self.student.user.first_name} {self.student.user.last_name} - {self.subject} - {self.total_score} ({self.grade})"
+        return f"{self.student.user.get_full_name()} - {self.subject} - {self.total_score} ({self.grade})"
     
     
 
@@ -332,4 +333,4 @@ class StudentClasses(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"{self.student.user.username.capitalize()}'s Classes"
+        return f"{self.student.user.get_full_name()}'s Repeated Classes"

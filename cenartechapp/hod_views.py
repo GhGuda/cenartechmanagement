@@ -18,6 +18,7 @@ from django.conf import settings
 import smtplib
 from email.message import EmailMessage
 import re
+from django.http import JsonResponse
 
 from .utils import delete_report_cards
 
@@ -136,6 +137,15 @@ def search(request):
     return render(request, 'hod/search.html', data)
 
 
+
+@login_required(login_url='/')
+def old_student(request):
+    students = Student.objects.filter(class_id__name="Completed Class")
+    
+    context={
+        'students':students
+    }
+    return render(request, 'hod/old_student.html', context)
 
 
 
@@ -372,6 +382,7 @@ def add_student(request):
                         class_id=student_class,
                         religion=religion,
                         phone=phone,
+                        overall_total_marks = 0.00,
                         father_name=father_name,
                         father_number=father_number,
                         father_email=father_email,
@@ -472,6 +483,24 @@ def delete_student(request, user_name):
     except:
         messages.error(request, "Error deleting student!")
     return redirect('view_student')
+
+
+
+
+@login_required(login_url='/')
+def delete_old_student(request, user_name):
+    if request.method == 'POST':
+        try:
+            user = get_object_or_404(CustomUser, username=user_name)
+            student = get_object_or_404(Student, user=user)
+            user.delete()
+            student.delete()
+            return JsonResponse({'message': f"{user.get_full_name().capitalize()} has been deleted from the system permanently."}, status=200)
+        except Exception as e:
+            return JsonResponse({'message': 'Error deleting student!'}, status=500)
+    return JsonResponse({'message': 'Invalid request method.'}, status=400)
+    
+    
 
 
 
@@ -1292,16 +1321,9 @@ def add_term(request):
                 
                 if previous_term == "Three" and term_value == "One":
                     promote_students(request)
-                    for student in students:
-                        student.total_marks_term_one = 0
-                        student.total_marks_term_two = 0
-                        student.total_marks_term_three = 0
-                        student.overall_total_marks = 0
-                        student.save()
-    
                     messages.success(request, "Students have been promoted sucessfully!")
 
-                messages.success(request, f"Term updated to '{term_value.capitalize()}' successfully! ")
+                messages.success(request, f"Term updated to 'Term {term_value.capitalize()}' successfully! ")
                 return redirect(add_term)
             else:
                 messages.error(request, "Failed, please select a term!")
@@ -1352,18 +1374,23 @@ def promote_students(request):
         for student in students:
             current_class = student.class_id.name
             
-            
-
-            class_f3 = Class_Form.objects.get(name="Completed Class")
-            
+                        
             if student.overall_total_marks >= term.cutOfPoint:
-                # Handle promotion for students in Form Three, Term Three
                 if current_class == "Form Three":
                     class_f3 = Class_Form.objects.get(name="Completed Class")
                     student.class_id = class_f3
-                    student.subjects.clear()  # Clear all subjects
+                    student.year_completed = get_years(request)[0]
+                    student.subjects.clear()
+                    student.total_marks_term_one = 0.00
+                    student.total_marks_term_two = 0.00
+                    student.total_marks_term_three = 0.00
+                    student.overall_total_marks = 0.00
+                    student.promoted_to = class_f3
+                    student.interest = ""
+                    student.attendance = ""
                     student.save()
                     continue
+                
 
                 if current_class in forms_promotion:
                     new_class_name = forms_promotion[current_class]
@@ -1378,10 +1405,15 @@ def promote_students(request):
                     student.promoted_to=new_class
                     student.subjects.clear()  
                     student.assign_subjects() 
-                    student.save()
+                    student.total_marks_term_one = 0.00
+                    student.total_marks_term_two = 0.00
+                    student.total_marks_term_three = 0.00
+                    student.overall_total_marks = 0.00
+                    student.save()                    
             else:
                 student.promoted_to = student.class_id
-                student.save()  
+                student.save()
+
     except:
         messages.error(request, "An error occured while processing promotion.")
         return redirect(add_term)
