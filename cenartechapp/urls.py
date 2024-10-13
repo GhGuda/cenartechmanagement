@@ -39,6 +39,7 @@ urlpatterns = [
     
     path('HOD/add/term', hod_views.add_term, name="add_term"),
     path('HOD/run/search', hod_views.search, name="search"),
+    path('HOD/update-promoted-to/', hod_views.update_promoted_to, name='update_promoted_to'),
     path('HOD/activate/<user_name>/activate_user', hod_views.activate_user, name="activate_user"),
     
     

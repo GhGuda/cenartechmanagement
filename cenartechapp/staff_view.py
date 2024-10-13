@@ -542,7 +542,7 @@ def add_marks(request, class_id):
         messages.error(request, "Did not run!")
         return redirect(add_marks, student.user.username)
     terms = Term.objects.first()
-    student_results = StudentResult.objects.filter(student=student, term=terms.term, previous_class =student.class_id,  year=current_year)
+    student_results = StudentResult.objects.filter(student=student, term=terms.term, previous_class =student.class_id.name,  year=current_year)
     context={
         'staff': staff,
         'students': student,

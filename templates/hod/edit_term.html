@@ -14,6 +14,23 @@
       -moz-appearance: textfield; /* Firefox */
       appearance: textfield;
     }
+    .form-group a{
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        align-items: center;
+        border: .5px solid rgba(182, 182, 182, 0.822);
+        border-radius: 50px;
+        padding: .35rem;
+        margin-top: .6px;
+        transition: .4s ease;
+        color: black;
+    }
+
+    .form-group a:hover{
+        background-color: #1a1a1a6c;
+        color: white;
+    }
   </style>
 <div class="page-header">
     <div class="row align-items-center">
@@ -83,6 +100,52 @@
                                 <input type="number" name="cutoffpoint" value="{{term.cutOfPoint}}" id="cutoffpoint" class="form-control">
                             </div>
                         </div>
+
+                        {% if term.term == "Three" %}
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label for="examdate">This set students promoted field on report card.</label><br>
+                                    <a href="#" id="promote-students">
+                                        <i class="fas fa-arrow-up"></i> <span>Promote Students</span> <span class="menu-arrow"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label for="examdate"></label><br>
+                                    <span class="disabled-link" style="color: gray; cursor: not-allowed;">
+                                        <i class="fas fa-ban"></i> <span>Promotions are not available in this term.</span> <span class="menu-arrow"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        {% endif %}                        
+
+                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                        <script>
+                            $(document).ready(function() {
+                                $('#promote-students').click(function(event) {
+                                    event.preventDefault(); // Prevent default anchor click behavior
+                                    
+                                    $.ajax({
+                                        url: "{% url 'update_promoted_to' %}",
+                                        type: "POST",
+                                        data: {
+                                            csrfmiddlewaretoken: '{{ csrf_token }}', // Include CSRF token
+                                        },
+                                        success: function(response) {
+                                            // Handle the success response
+                                            alert("Promoted field updated successfully.");
+                                            // Optionally refresh or update the UI
+                                        },
+                                        error: function(xhr, status, error) {
+                                            // Handle errors
+                                            alert("An error occurred: " + error);
+                                        }
+                                    });
+                                });
+                            });
+                        </script>
 
                         <div class="col-12">
                             <p>School is currently in <b>"Term {{ term.term|capfirst }}"</b>

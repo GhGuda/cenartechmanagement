@@ -1374,24 +1374,23 @@ def promote_students(request):
         for student in students:
             current_class = student.class_id.name
             
+            
+            if current_class == "Form Three":
+                class_f3 = Class_Form.objects.get(name="Completed Class")
+                student.class_id = class_f3
+                student.year_completed = get_years(request)[0]
+                student.subjects.clear()
+                student.total_marks_term_one = 0.00
+                student.total_marks_term_two = 0.00
+                student.total_marks_term_three = 0.00
+                student.overall_total_marks = 0.00
+                student.promoted_to = class_f3
+                student.interest = ""
+                student.attendance = ""
+                student.save()
+                continue
                         
             if student.overall_total_marks >= term.cutOfPoint:
-                if current_class == "Form Three":
-                    class_f3 = Class_Form.objects.get(name="Completed Class")
-                    student.class_id = class_f3
-                    student.year_completed = get_years(request)[0]
-                    student.subjects.clear()
-                    student.total_marks_term_one = 0.00
-                    student.total_marks_term_two = 0.00
-                    student.total_marks_term_three = 0.00
-                    student.overall_total_marks = 0.00
-                    student.promoted_to = class_f3
-                    student.interest = ""
-                    student.attendance = ""
-                    student.save()
-                    continue
-                
-
                 if current_class in forms_promotion:
                     new_class_name = forms_promotion[current_class]
                 elif current_class in lower_classes_promotion:
@@ -1426,3 +1425,56 @@ def promote_students(request):
  
  
  
+def update_promoted_to(request):
+    if request.method == 'POST':
+        try:
+            term = Term.objects.get(pk=1)
+
+            forms_promotion = {
+                "Form One": "Form Two",
+                "Form Two": "Form Three",
+                "Form Three": ""
+            }
+
+            lower_classes_promotion = {
+                "Nursery One": "Nursery Two",
+                "Nursery Two": "Kindergarten One",
+                "Kindergarten One": "Kindergarten Two",
+                "Kindergarten Two": "Class One",
+                "Class One": "Class Two",
+                "Class Two": "Class Three",
+                "Class Three": "Class Four",
+                "Class Four": "Class Five",
+                "Class Five": "Class Six",
+                "Class Six": "Form One"
+            }
+
+            students = Student.objects.all().exclude(user__is_active=False).exclude(class_id__name="Completed Class")
+
+            for student in students:
+                current_class = student.class_id.name
+
+                if current_class == "Form Three":
+                    class_f3 = Class_Form.objects.get(name="Completed Class")
+                    student.promoted_to = class_f3
+                    
+                if student.overall_total_marks >= term.cutOfPoint:
+                    if current_class in forms_promotion:
+                        new_class_name = forms_promotion[current_class]
+                        new_class = Class_Form.objects.get(name=new_class_name)
+                        student.promoted_to = new_class
+                    elif current_class in lower_classes_promotion:
+                        new_class_name = lower_classes_promotion[current_class]
+                        new_class = Class_Form.objects.get(name=new_class_name)
+                        student.promoted_to = new_class
+                else:
+                    student.promoted_to = student.class_id
+
+                student.save()
+
+            return JsonResponse({"success": True, "message": "Promoted field updated successfully."})
+
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+    else:
+        return JsonResponse({"success": False, "message": "Invalid request."})
