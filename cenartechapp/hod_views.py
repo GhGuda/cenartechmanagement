@@ -186,7 +186,7 @@ def add_student(request):
             address2 = request.POST['address2']
             
             if profile_pic != 'blank.webp':
-                max_file_size = 1 * 1024 * 1024  # 5MB limit
+                max_file_size = 1 * 1024 * 1024  # 1MB limit
                 if profile_pic.size > max_file_size:
                     messages.error(request, "Profile picture is too large. Maximum size allowed is 1MB!")
                     return render(request, 'hod/add_student.html', {
@@ -746,7 +746,7 @@ def add_staff(request):
             
             
             if profile_pic != 'blank.webp':
-                max_file_size = 1 * 1024 * 1024  # 5MB limit
+                max_file_size = 1 * 1024 * 1024  # 1MB limit
                 if profile_pic.size > max_file_size:
                     messages.error(request, "Profile picture is too large. Maximum size allowed is 1MB!")
                     return render(request, 'hod/add_staff.html', {
