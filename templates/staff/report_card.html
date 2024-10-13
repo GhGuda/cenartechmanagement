@@ -206,6 +206,11 @@
         <div class="footer">
             <div>ATTENDANCE: {{ student.attendance }}</div>
             <div>CONDUCT: {{ student.conduct|upper }}</div>
+            {% if student.overall_total_marks >= term.cutOfPoint %}
+                <div>PROMOTED TO: {{ student.promoted_to|upper }}</div>
+            {% else %}
+                <div>PROMOTED TO: REPEATED</div>
+            {% endif %}
             <div>CLASS TEACHER'S REMARKS: {{ student.remarks|upper }}</div>
             <div>HEADTEACHER'S REMARKS: {{ term.hod_remarks|upper }}</div>
             <div>INTEREST: {{ student.interest|upper }}</div>
