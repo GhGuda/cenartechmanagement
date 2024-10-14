@@ -164,6 +164,8 @@ cython_debug/
 
 
 # Django static and media folders
-/static/
-/media/
-/staticfiles/
+static
+media
+staticfiles
+
+cenartechmanagement

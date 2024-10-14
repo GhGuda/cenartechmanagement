@@ -1408,6 +1408,7 @@ def promote_students(request):
                     student.total_marks_term_two = 0.00
                     student.total_marks_term_three = 0.00
                     student.overall_total_marks = 0.00
+                    student.interest = ""
                     student.save()                    
             else:
                 student.total_marks_term_one = 0.00
@@ -1415,6 +1416,7 @@ def promote_students(request):
                 student.total_marks_term_three = 0.00
                 student.overall_total_marks = 0.00
                 student.promoted_to = student.class_id
+                student.interest = ""
                 student.save()
 
     except:

@@ -19,9 +19,12 @@
         border: none;
         padding: 10px 20px;
         cursor: pointer;
+        border-radius: .5rem;
+        transition: .4s ease-in-out;
     }
     .button-container button:hover {
-        background-color: #45a049;
+        background-color: #75c779de;
+        color: rgba(255, 255, 255, 0.651);
     }
     .table-header {
         display: flex;
@@ -112,8 +115,23 @@
 
             {% csrf_token %}
             <div class="button-container">
-                <button type="submit">Save Records</button>
+                <button type="submit" id="submit-btn">
+                    <span id="submit-btn-text">Save Records</span>
+                </button>
             </div>
+            
+            <script>
+                // Select the form and the button
+                const form = document.querySelector('form');
+                const submitBtn = document.getElementById('submit-btn');
+                const submitBtnText = document.getElementById('submit-btn-text');
+            
+                // Add a listener for the form submission
+                form.addEventListener('submit', function(event) {
+                    submitBtnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+                    submitBtn.disabled = true;
+                });
+            </script>
             <table>
                 <thead>
                     <tr>

@@ -104,9 +104,11 @@
                         {% if term.term == "Three" %}
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label for="examdate">This set students promoted field on report card.</label><br>
-                                    <a href="#" id="promote-students">
-                                        <i class="fas fa-arrow-up"></i> <span>Promote Students</span> <span class="menu-arrow"></span>
+                                    <label for="examdate">This sets the students' promoted field on the report card.</label><br>
+                                    <a href="#" id="promote-students" class="btn">
+                                        <i id="promote-students-icon" class="fas fa-arrow-up"></i> 
+                                        <span id="promote-students-text">Promote Students</span>
+                                        <span class="menu-arrow"></span>
                                     </a>
                                 </div>
                             </div>
@@ -119,14 +121,19 @@
                                     </span>
                                 </div>
                             </div>
-                        {% endif %}                        
+                        {% endif %}
 
                         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                         <script>
                             $(document).ready(function() {
                                 $('#promote-students').click(function(event) {
                                     event.preventDefault(); // Prevent default anchor click behavior
-                                    
+
+                                    // Show progress status message
+                                    $('#promote-students-text').html('Promoting Students...');
+                                    $('#promote-students-icon').removeClass('fa-arrow-up').addClass('fa-spinner fa-spin'); // Change icon to spinner
+                                    $('#promote-students').css('pointer-events', 'none'); // Disable button during the process
+
                                     $.ajax({
                                         url: "{% url 'update_promoted_to' %}",
                                         type: "POST",
@@ -134,18 +141,25 @@
                                             csrfmiddlewaretoken: '{{ csrf_token }}', // Include CSRF token
                                         },
                                         success: function(response) {
-                                            // Handle the success response
-                                            alert("Promoted field updated successfully.");
-                                            // Optionally refresh or update the UI
+                                            // Handle the success response and update the button to show completed status
+                                            $('#promote-students-text').html('Students Promoted');
+                                            $('#promote-students-icon').removeClass('fa-spinner fa-spin').addClass('fa-check'); // Change icon to check
+                                            $('#promote-students').css('color', 'green');
                                         },
                                         error: function(xhr, status, error) {
-                                            // Handle errors
+                                            // Handle errors and revert the button to the original state
                                             alert("An error occurred: " + error);
+                                            $('#promote-students-text').html('Promote Students');
+                                            $('#promote-students-icon').removeClass('fa-spinner fa-spin').addClass('fa-arrow-up'); // Revert to original icon
+                                            $('#promote-students').css('pointer-events', 'auto'); // Re-enable the button
                                         }
                                     });
                                 });
                             });
                         </script>
+
+                    
+
 
                         <div class="col-12">
                             <p>School is currently in <b>"Term {{ term.term|capfirst }}"</b>
@@ -159,8 +173,13 @@
                         </div>
 
                         <div class="col-12">
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="submit" class="btn btn-primary" id="submit-btn">
+                                <span id="submit-btn-text">Submit</span>
+                            </button>
                         </div>
+                        
+                        
+                        
                     </div>
                 </form>
             </div>
