@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models import Sum
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 
 
@@ -235,18 +235,17 @@ class StudentResult(models.Model):
         self.sum_class_score = s_class_score
         
         # Calculate the class score as 30% of the combined scores
-        class_score = round((s_class_score / Decimal(100)) * Decimal(30), 2)
+        class_score = (s_class_score / Decimal(100)) * Decimal(30)
         # Store the calculated class score
-        self.total_class_score = class_score
+        self.total_class_score = class_score.quantize(Decimal('1'), rounding=ROUND_HALF_UP).quantize(Decimal('0.00'))
         
         # Calculate the exam score as 70% of the exam score
-        exam_score = round(self.exam_score / Decimal(100) * Decimal(70), 2)
-        
-        # Store the calculated exams score
-        self.exams_score = exam_score
+        exam_score = (self.exam_score / Decimal(100) * Decimal(70))
+        self.exams_score = exam_score.quantize(Decimal('1'), rounding=ROUND_HALF_UP).quantize(Decimal('0.00'))
         
         # Calculate the total score
-        self.total_score = round(class_score + exam_score, 2)
+        total_score = class_score + exam_score
+        self.total_score = total_score.quantize(Decimal('1'), rounding=ROUND_HALF_UP).quantize(Decimal('0.00'))
         
         # Determine and assign the grade based on the total score
         if self.total_score >= 80:

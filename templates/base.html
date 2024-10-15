@@ -56,8 +56,120 @@
       $(document).ready(function() {
 
      
-     
+    // Student subject chart
+
+    var subjectNames = [];
+    var subjectScores = [];
+
+    {% for subject in student.subjects.all %}
+        subjectNames.push("{{ subject.subject_name|safe }}");
+        var scoreFound = false;
+        
+        // Look for the subject's total score in results
+        {% for result in results %}
+            {% if result.subject == subject.subject_name %}
+                subjectScores.push({{ result.total_score }});
+                scoreFound = true;
+            {% endif %}
+        {% endfor %}
+        
+        // If no score is found, push a default value (e.g., 0)
+        if (!scoreFound) {
+            subjectScores.push(0); // Or use "N/A" if you want to display "N/A" instead
+        }
+    {% endfor %}
+
+    // Sort scores and subjects together
+    var combined = [];
+    for (var i = 0; i < subjectNames.length; i++) {
+        combined.push([subjectScores[i], subjectNames[i]]);
+    }
+    combined.sort(function(a, b) {
+        return a[0] - b[0]; // Sort by score (ascending)
+    });
+
+    var sortedScores = combined.map(function(item) { return item[0]; });
+    var sortedSubjects = combined.map(function(item) { return item[1]; });
+
+    // Now pass these sorted values to ApexCharts
+    var options = {
+      series: [{
+        name: 'Total Score',
+        data: sortedScores
+      }],
+      chart: {
+        height: 350,
+        type: 'bar'
+      },
+      plotOptions: {
+        bar: {
+          borderRadius: 10, // Increase the border-radius
+          barHeight: '90%', // Ensures bars are thick enough for border-radius to apply
+          horizontal: false,
+          dataLabels: {
+            position: 'top', // Position the data label on top of the bar
+          },
+        }
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: function (val) {
+          return val + " %";
+        },
+        offsetY: -20,
+        style: {
+          fontSize: '12px',
+          colors: ["#304758"]
+        }
+      },
+      xaxis: {
+        categories: sortedSubjects,
+        position: 'top',
+        axisBorder: {
+          show: false
+        },
+        axisTicks: {
+          show: false
+        },
+        crosshairs: {
+          fill: {
+            type: 'gradient',
+            gradient: {
+              colorFrom: '#D8E3F0',
+              colorTo: '#BED1E6',
+              stops: [0, 100],
+              opacityFrom: 0.4,
+              opacityTo: 0.5,
+            }
+          }
+        },
+        tooltip: {
+          enabled: true
+        }
+      },
+      yaxis: {
+        axisBorder: {
+          show: false
+        },
+        axisTicks: {
+          show: false
+        },
+        labels: {
+          show: false,
+          formatter: function (val) {
+            return val + " %"; // Display points, customize as needed
+          }
+        }
+      },
+    };
+
+    var chart = new ApexCharts(document.querySelector("#subjectchart"), options);
+    chart.render();
+
    
+
+
+
 
 	// Bar chart
 	
