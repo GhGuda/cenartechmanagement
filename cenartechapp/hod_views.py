@@ -630,6 +630,7 @@ def edit_student(request, user_name):
             user.first_name = firstname
             user.last_name = lastname
             user.middle_name = middlename
+            user.save()
             if gender !="":
                 student.gender = gender
             else:
