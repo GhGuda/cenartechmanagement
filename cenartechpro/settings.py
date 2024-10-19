@@ -96,16 +96,16 @@ WSGI_APPLICATION = 'cenartechpro.wsgi.application'
 
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': config("ENGINE"),
-#         'NAME': config("NAME"),
-#         'USER': config("USER"),
-#         'PASSWORD': config("PASSWORD"),
-#         'HOST': config("HOST"),
-#         'PORT': config("PORT"),
-#     }
-# }
+DATABASES = {
+    # 'default': {
+    #     'ENGINE': config("ENGINE"),
+    #     'NAME': config("NAME"),
+    #     'USER': config("USER"),
+    #     'PASSWORD': config("PASSWORD"),
+    #     'HOST': config("HOST"),
+    #     'PORT': config("PORT"),
+    # }
+}
 
 # if not DEBUG and config('DBURL') is not None:
 DATABASES['default'] = dj_database_url.parse(config('DBURL'))
