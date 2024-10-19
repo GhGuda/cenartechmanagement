@@ -10,6 +10,7 @@ from .models import PassedStudents
 from .models import YearlyPassedStudents
 from .models import YearlyAdmittedStudents
 from .models import AdmittedStudents
+from .models import School
 from django.contrib import messages
 from .staff_view import get_years
 from django.db.models import Count
@@ -44,34 +45,36 @@ def is_valid_input(input_string):
 
 @login_required(login_url='/')
 def home(request):
-    students = Student.objects.all().exclude(user__is_active=False).exclude(class_id__name="Completed Class").count()
-    staffs = Staff.objects.all().count()
+    user = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=user.school.name)
+    students = Student.objects.filter(user__school=school).exclude(user__is_active=False).exclude(class_id__name="Completed Class").count()
+    staffs = Staff.objects.filter(staff_name__school=school).count()
     subject = Subject.objects.values('subject_name').distinct()
 
 
     term = Term.objects.first()
-    student_gender_male = Student.objects.filter(gender="male").exclude(user__is_active=False).count()
-    student_gender_female = Student.objects.filter(gender="female").exclude(user__is_active=False).count()
+    student_gender_male = Student.objects.filter(gender="male",user__school=school).exclude(user__is_active=False).count()
+    student_gender_female = Student.objects.filter(gender="female", user__school=school).exclude(user__is_active=False).count()
     current_year, previous_year = get_years(request)
     
     # PassedStudents doings
-    past_students = PassedStudents.objects.filter(term=term.term, year=current_year) \
+    past_students = PassedStudents.objects.filter(term=term.term, year=current_year, school=school) \
     .values('class_form') \
     .annotate(student_count=Count('id')) \
     .order_by('class_form')
     
-    yearly_passed_students = YearlyPassedStudents.objects.all()
-    year_count = PassedStudents.objects.filter(year=current_year).count()
+    yearly_passed_students = YearlyPassedStudents.objects.filter(school=school)
+    year_count = PassedStudents.objects.filter(year=current_year, school=school).count()
     
     
     # Admitted Students Doings
-    admit_students = AdmittedStudents.objects.filter(term=term.term, year=current_year) \
+    admit_students = AdmittedStudents.objects.filter(term=term.term, year=current_year, school=school) \
     .values('class_form') \
     .annotate(student_count=Count('id')) \
     .order_by('class_form')
     
-    admitted_year_count = AdmittedStudents.objects.filter(year=current_year).count()
-    admitted_students = YearlyAdmittedStudents.objects.all()
+    admitted_year_count = AdmittedStudents.objects.filter(year=current_year, school=school).count()
+    admitted_students = YearlyAdmittedStudents.objects.filter(school=school)
 
     
     
@@ -105,6 +108,8 @@ def home(request):
 def search(request):
     data = None
     try:
+        user = CustomUser.objects.get(username=request.user)
+        school = School.objects.get(name=user.school.name)
         if request.method == "POST":
             search = request.POST['search']
             if search:
@@ -116,7 +121,8 @@ def search(request):
                     Q(user__email__icontains=search) |
                     Q(class_id__name__icontains=search) |
                     Q(phone__icontains=search) |
-                    Q(religion__icontains=search)
+                    Q(religion__icontains=search),
+                    user__school=school
                 )
                 
                 staffs_search = Staff.objects.filter(
@@ -125,7 +131,8 @@ def search(request):
                     Q(staff_name__last_name__icontains=search) |
                     Q(staff_name__middle_name__icontains=search) |
                     Q(staff_name__email__icontains=search) |
-                    Q(phone__icontains=search)
+                    Q(phone__icontains=search),
+                    staff_name__school=school
                 )
                 data = {
                     "students":students_search,
@@ -140,7 +147,9 @@ def search(request):
 
 @login_required(login_url='/')
 def old_student(request):
-    students = Student.objects.filter(class_id__name="Completed Class")
+    user = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=user.school.name)
+    students = Student.objects.filter(class_id__name="Completed Class", user__school=school)
     
     context={
         'students':students
@@ -153,6 +162,8 @@ def old_student(request):
 
 @login_required(login_url='/')
 def add_student(request):
+    user = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=user.school.name)
     student_classes = Class_Form.objects.all().exclude(name="Completed Class")
 
     if request.method == "POST":
@@ -362,7 +373,7 @@ def add_student(request):
 
                 # Save the user and student data if at least one email was provided and sent successfully
                 if email_sent or (not email and not father_email and not mother_email):
-                    user = CustomUser.objects.create_user(
+                    user = CustomUser.objects.create(
                         username=username,
                         password=student_password,
                         first_name=fname,
@@ -371,6 +382,7 @@ def add_student(request):
                         email=email,
                         profile_pic=profile_pic,
                         user_type="STUDENT",
+                        school = school,
                     )
 
                     # Get class and create student
@@ -400,11 +412,14 @@ def add_student(request):
                         class_form=student.class_id.name,
                         term=term.term,
                         year=current_year,
+                        school = school,
                     )
                     admitted_students.save()
 
                     yearly, created = YearlyAdmittedStudents.objects.update_or_create(
                         year=current_year,
+                        school = school,
+                        
                     )
                     yearly.number += 1
                     yearly.save()
@@ -418,7 +433,8 @@ def add_student(request):
         except:
             messages.error(request, f"Error: Failed to add student!")
             return render(request, 'hod/add_student.html', {
-                "entered_data": request.POST
+                "entered_data": request.POST,
+                    "class": student_classes,
             })
 
     context = {
@@ -430,7 +446,9 @@ def add_student(request):
 
 @login_required(login_url='/')
 def view_student(request):
-    students = Student.objects.all().exclude(class_id__name="Completed Class").exclude(user__is_active=False)
+    usersh = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=usersh.school.name)
+    students = Student.objects.filter(user__school=school).exclude(class_id__name="Completed Class").exclude(user__is_active=False)
 
 
     context={
@@ -444,7 +462,9 @@ def view_student(request):
 @login_required(login_url='/')
 def delete_student(request, user_name):
     try:
-        user = get_object_or_404(CustomUser, username=user_name)
+        usersh = CustomUser.objects.get(username=request.user)
+        school = School.objects.get(name=usersh.school.name)
+        user = get_object_or_404(CustomUser, username=user_name, school=school)
         student= get_object_or_404(Student, user=user)
         current_year, previous_year = get_years(request)
         term = Term.objects.get(pk=1)
@@ -452,12 +472,14 @@ def delete_student(request, user_name):
         passed_stedents = PassedStudents.objects.create(
             class_form = student.class_id.name,
             term = term.term,
-            year= current_year
+            year= current_year,
+            school=school
         )
         passed_stedents.save()
         
         yearlyp, created = YearlyPassedStudents.objects.update_or_create(
             year = current_year,
+            school=school
         )
         yearlyp.number = yearlyp.number + 1
         yearlyp.save()
@@ -469,12 +491,13 @@ def delete_student(request, user_name):
         
         yearly = YearlyAdmittedStudents.objects.get(
             year = student.user.date_joined.year,
+            school=school
         )
         yearly.number = yearly.number - 1
         yearly.save()
         
         
-        admitted =  AdmittedStudents.objects.filter(class_form = student.class_id.name, year=student.user.date_joined.year).first()
+        admitted =  AdmittedStudents.objects.filter(class_form = student.class_id.name, year=student.user.date_joined.year, school=school).first()
         admitted.delete()
         
         user.is_active = False
@@ -491,7 +514,9 @@ def delete_student(request, user_name):
 def delete_old_student(request, user_name):
     if request.method == 'POST':
         try:
-            user = get_object_or_404(CustomUser, username=user_name)
+            usersh = CustomUser.objects.get(username=request.user)
+            school = School.objects.get(name=usersh.school.name)
+            user = get_object_or_404(CustomUser, username=user_name, school=school)
             student = get_object_or_404(Student, user=user)
             user.delete()
             student.delete()
@@ -508,7 +533,9 @@ def delete_old_student(request, user_name):
 @login_required(login_url='/')
 def activate_user(request, user_name):
     try:
-        user = get_object_or_404(CustomUser, username=user_name)
+        usersh = CustomUser.objects.get(username=request.user)
+        school = School.objects.get(name=usersh.school.name)
+        user = get_object_or_404(CustomUser, username=user_name, school=school)
         student = get_object_or_404(Student, user=user)
         user.is_active = True
         yearly = PassedStudents.objects.filter(class_form=student.class_id.name, year=student.year_stopped).first()
@@ -546,7 +573,9 @@ def activate_user(request, user_name):
 
 @login_required(login_url='/')
 def edit_student(request, user_name):
-    user = get_object_or_404(CustomUser, username=user_name)
+    usersh = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=usersh.school.name)
+    user = get_object_or_404(CustomUser, username=user_name, school=school)
     student = get_object_or_404(Student, user=user)
     classes = Class_Form.objects.all().exclude(name="Completed Class")
     term = Term.objects.get(pk=1)
@@ -672,7 +701,9 @@ def edit_student(request, user_name):
 
 @login_required(login_url='/')
 def student_details(request, user_name):
-    user = get_object_or_404(CustomUser, username=user_name)
+    usersh = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=usersh.school.name)
+    user = get_object_or_404(CustomUser, username=user_name, school=school)
     students = get_object_or_404(Student,user__username=user)
     
     studentclass = Class_Form.objects.all().exclude(name="Completed Class")
@@ -715,10 +746,12 @@ def student_details(request, user_name):
 
 @login_required(login_url='/')
 def add_staff(request):
+    user = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=user.school.name)
     class_forms = Class_Form.objects.all().exclude(name="Completed Class")
     subject = Subject.objects.values('subject_name').distinct()
-    try:
-        if request.method == "POST":
+    # try:
+    if request.method == "POST":
             profile_pic = request.FILES.get('profile_pic')
             if not profile_pic:
                 profile_pic = 'blank.webp'
@@ -912,7 +945,7 @@ def add_staff(request):
                         
                     if email_sent or (not email):
 
-                        staff_user = CustomUser.objects.create_user(
+                        staff_user = CustomUser.objects.create(
                             username=username,
                             password=staff_password1,
                             first_name=fname,
@@ -921,6 +954,7 @@ def add_staff(request):
                             email=email,
                             profile_pic=profile_pic,
                             user_type="STAFF",
+                            school = school,
                         )
 
                         staff = Staff.objects.create(
@@ -948,14 +982,15 @@ def add_staff(request):
 
                             # Combine querysets to get any existing staff managing the same class and teaching the subject
                             staffs_with_class_and_sub = (
-                                Staff.objects.filter(class_managed__name=name, subject_teacher_subject__subject_name=subject_teach) |
-                                Staff.objects.filter(subject_teacher_class__name=name, subject_teacher_subject__subject_name=subject_teach)
+                                Staff.objects.filter(staff_name__school=school, class_managed__name=name, subject_teacher_subject__subject_name=subject_teach) |
+                                Staff.objects.filter(staff_name__school=school, subject_teacher_class__name=name, subject_teacher_subject__subject_name=subject_teach)
                             ).distinct()
 
                             # Remove the class management and subject assignment from these staff members
                             for staff_member in staffs_with_class_and_sub:
                                 staff_member.class_managed.remove(classes)  # Remove the class from managed classes
-                                staff_member.subject_teacher_subject.remove(subject_teach)
+                                subject_staff_teaching = Subject.objects.get(class_Form=classes.pk, subject_name=subject_teach)
+                                staff_member.subject_teacher_subject.remove(subject_staff_teaching)
                                 staff_member.save()
                             
                             # Get or create the subject for the class
@@ -986,6 +1021,7 @@ def add_staff(request):
                                 subjectssj = Subject.objects.get(class_Form=class_form_instance2.pk, subject_name=subject_teach)
                             # Find existing subject teachers for the class and subject
                                 staffs_with_class_nd_subject = Staff.objects.filter(
+                                    staff_name__school=school,
                                     subject_teacher_class=class_form_instance2, 
                                     subject_teacher_subject__subject_name=subject_teach
                                 )
@@ -1023,9 +1059,14 @@ def add_staff(request):
                         "subject": subject,
                         "entered_data": request.POST
                     })
-    except:
-        messages.error(request, "Unexpected error occured!")
-        return redirect('add_staff')
+    # except Exception as E:
+    #     print(E)
+    #     messages.error(request, "Unexpected error occured!")
+    #     return render(request, 'hod/add_staff.html', {
+    #                     "class": class_forms,
+    #                     "subject": subject,
+    #                     "entered_data": request.POST
+    #                 })
     context = {
         "class": class_forms,
         "subject": subject,
@@ -1037,7 +1078,9 @@ def add_staff(request):
 
 @login_required(login_url='/')
 def edit_staff(request, staff):
-    staff_user = get_object_or_404(CustomUser, username=staff)
+    user = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=user.school.name)
+    staff_user = get_object_or_404(CustomUser, username=staff, school=school)
     staff = get_object_or_404(Staff, staff_name=staff_user)
     class_forms = Class_Form.objects.all().exclude(name="Completed Class")
 
@@ -1114,8 +1157,10 @@ def edit_staff(request, staff):
 
 @login_required(login_url='/')
 def delete_staff(request, staff):
+    user = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=user.school.name)
     try:
-        staff_user = get_object_or_404(CustomUser, username=staff)
+        staff_user = get_object_or_404(CustomUser, username=staff, school=school)
         user = str(staff_user)
         messages.success(request, f'{user.capitalize()} has been deleted successfully!')
         staff_user.delete()
@@ -1128,7 +1173,9 @@ def delete_staff(request, staff):
 
 @login_required(login_url='/')
 def view_staffs(request):
-    staffs = Staff.objects.all()
+    user = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=user.school.name)
+    staffs = Staff.objects.filter(staff_name__school=school)
 
     context = None
     for staff in staffs:
@@ -1146,7 +1193,9 @@ def view_staffs(request):
 
 @login_required(login_url='/')
 def view_staff_details(request, staffname):
-    staff_user = get_object_or_404(CustomUser, username=staffname)
+    user = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=user.school.name)
+    staff_user = get_object_or_404(CustomUser, username=staffname, school=school)
     staff = get_object_or_404(Staff, staff_name=staff_user)
     try:
         if request.method == "POST":
@@ -1182,8 +1231,10 @@ def view_staff_details(request, staffname):
 
 @login_required(login_url='/')
 def assign_staffs(request):
+    user = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=user.school.name)
     class_form = Class_Form.objects.all().exclude(name="Completed Class")
-    staff = Staff.objects.all()
+    staff = Staff.objects.filter(staff_name__school=school)
     subjects = Subject.objects.values('subject_name').distinct()
 
     try:
@@ -1292,8 +1343,10 @@ def assign_staffs(request):
 
 @login_required(login_url='/')
 def add_term(request):
-    term = Term.objects.get(pk=1)
-    students = Student.objects.all().exclude(user__is_active=False).exclude(class_id__name="Completed Class")
+    user = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=user.school.name)
+    term = Term.objects.get(school=school)
+    students = Student.objects.filter(user__school__name=school).exclude(user__is_active=False).exclude(class_id__name="Completed Class")
     
     
      
@@ -1304,10 +1357,14 @@ def add_term(request):
             term_value = request.POST['term']
             hod_remark = request.POST['hod_remark']
             cutoffpoint = request.POST['cutoffpoint']
+            name = request.POST['name']
+            address = request.POST['address']
 
             previous_term = term.term 
 
             if term_value != "Select Term":
+                school.name = name
+                school.address = address
                 term.term = term_value
                 term.vacation_date = vacation
                 term.reopening_date = rdate
@@ -1318,13 +1375,14 @@ def add_term(request):
                     student.save()
                 delete_report_cards()
                 term.save()
+                school.save()
             
                 
                 if previous_term == "Three" and term_value == "One":
                     promote_students(request)
                     messages.success(request, "Students have been promoted sucessfully!")
 
-                messages.success(request, f"Term updated to 'Term {term_value.capitalize()}' successfully! ")
+                messages.success(request, f"Updated successfully! ")
                 return redirect(add_term)
             else:
                 messages.error(request, "Failed, please select a term!")
@@ -1347,7 +1405,9 @@ def add_term(request):
 
 def promote_students(request):
     try:
-        term = Term.objects.get(pk=1)
+        user = CustomUser.objects.get(username=request.user)
+        school = School.objects.get(name=user.school.name)
+        term = Term.objects.get(school=school)
         
         
         forms_promotion = {
@@ -1369,7 +1429,7 @@ def promote_students(request):
             "Class Six": "Form One"
         }
 
-        students = Student.objects.all().exclude(user__is_active=False).exclude(class_id__name="Completed Class")
+        students = Student.objects.filter(user__school__name=school).exclude(user__is_active=False).exclude(class_id__name="Completed Class")
         
 
         for student in students:
@@ -1431,7 +1491,9 @@ def promote_students(request):
 def update_promoted_to(request):
     if request.method == 'POST':
         try:
-            term = Term.objects.get(pk=1)
+            user = CustomUser.objects.get(username=request.user)
+            school = School.objects.get(name=user.school.name)
+            term = Term.objects.get(school=school)
 
             forms_promotion = {
                 "Form One": "Form Two",
@@ -1452,7 +1514,7 @@ def update_promoted_to(request):
                 "Class Six": "Form One"
             }
 
-            students = Student.objects.all().exclude(user__is_active=False).exclude(class_id__name="Completed Class")
+            students = Student.objects.filter(user__school__name=school).exclude(user__is_active=False).exclude(class_id__name="Completed Class")
 
             for student in students:
                 current_class = student.class_id.name

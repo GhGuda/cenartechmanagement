@@ -8,6 +8,7 @@ from django.conf import settings
 import smtplib
 from email.message import EmailMessage
 import re
+from django.http import JsonResponse
 
 
 
@@ -19,6 +20,14 @@ EMAIL_PORT = settings.EMAIL_PORT
 
 schoolname=settings.SCHOOL_NAME
 
+def verify_password(request):
+    if request.method == "POST":
+        password = request.POST.get('password')
+        user = authenticate(username=request.user.username, password=password)
+        if user is not None:
+            return JsonResponse({"verified": True})
+        else:
+            return JsonResponse({"verified": False})
 
 
 def custom_403(request, exception):

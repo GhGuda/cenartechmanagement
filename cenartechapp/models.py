@@ -3,8 +3,55 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models import Sum
 from decimal import Decimal, ROUND_HALF_UP
 
+from django.contrib.auth.models import BaseUserManager
+
+class CustomUserManager(BaseUserManager):
+    def create_user(self, username, email=None, password=None, **extra_fields):
+        """
+        Creates and saves a regular user with the given username, email, and password.
+        """
+        if not username:
+            raise ValueError('The Username field is required')
+
+        email = self.normalize_email(email)
+        user = self.model(username=username, email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, username, email=None, password=None, **extra_fields):
+        """
+        Creates and saves a superuser with the given username, email, and password.
+        """
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+
+        school_name = input("Enter the school name: ")
+        school, created = School.objects.get_or_create(name=school_name)
+
+        # Create a default Term associated with the school
+        Term.objects.get_or_create(term="One", school=school)
+
+        # Assign the school to the superuser
+        extra_fields['school'] = school
+
+        return self.create_user(username, email, password, **extra_fields)
 
 
+
+
+
+
+
+class School(models.Model):
+    name = models.CharField(max_length=255)
+    address = models.CharField(max_length=255)
+    number = models.CharField(max_length=100, null=True, blank=True)
+    slogan = models.CharField(max_length=100, null=True, blank=True)
+    logo = models.ImageField(upload_to="schools_logo", default="blank.webp")
+    def __str__(self):
+        return f"{self.name} at {self.address}"
+        
 
 class CustomUser(AbstractUser):
     USER_CHOICE = (
@@ -13,10 +60,12 @@ class CustomUser(AbstractUser):
         ('STUDENT', 'STUDENT'),
     )
     
-    
+    school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=True)
     user_type = models.CharField(choices=USER_CHOICE, max_length=50, default="HOD")
     profile_pic = models.ImageField(upload_to="profile_pic", default="blank.webp")
     middle_name = models.CharField(max_length=200, blank=True)
+    
+    objects = CustomUserManager()
 
 
 
@@ -60,6 +109,7 @@ class Class_Form(models.Model):
     
 
 class Subject(models.Model):
+    school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=True)
     class_Form = models.ForeignKey(Class_Form, on_delete=models.CASCADE)
     subject_name = models.CharField(max_length=100)
     managed_by = models.ForeignKey(Staff, null=True , blank=True, on_delete=models.SET_NULL)
@@ -154,6 +204,7 @@ class PassedStudents(models.Model):
     class_form = models.CharField(max_length=30)
     term = models.CharField(max_length=30)
     year = models.CharField(max_length=30)
+    school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=True)
     
     def __str__(self):
         return f"Passed Students {self.class_form} in {self.term} {self.year}"
@@ -163,6 +214,8 @@ class PassedStudents(models.Model):
 class YearlyPassedStudents(models.Model):
     year = models.CharField(max_length=30)
     number = models.IntegerField(default=0)
+    school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=True)
+    
     
     def __str__(self):
         return f"Yearly Passed Students {self.number} in {self.year}"
@@ -173,6 +226,8 @@ class AdmittedStudents(models.Model):
     class_form = models.CharField(max_length=30)
     term = models.CharField(max_length=30)
     year = models.CharField(max_length=30)
+    school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=True)
+    
     
     def __str__(self):
         return f"Admitted Students {self.class_form} in {self.term} {self.year}"
@@ -182,6 +237,8 @@ class AdmittedStudents(models.Model):
 class YearlyAdmittedStudents(models.Model):
     year = models.CharField(max_length=30)
     number = models.IntegerField(default=0)
+    school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=True)
+    
     
     def __str__(self):
         return f"Yearly Adimitted Students {self.number} in {self.year}"
@@ -196,6 +253,8 @@ class Term(models.Model):
     vacation_date = models.CharField(max_length=30, blank=True)
     reopening_date = models.CharField(max_length=30, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=True)
+    
     
     def __str__(self):
         return f"Term {self.term}"

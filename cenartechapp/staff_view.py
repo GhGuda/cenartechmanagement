@@ -6,6 +6,8 @@ from .models import StudentResult
 from .models import Term
 from .models import Subject
 from .models import StudentClasses
+from .models import School
+from .models import CustomUser
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from datetime import datetime
@@ -47,14 +49,16 @@ def get_years(request):
 
 @login_required(login_url='/')
 def staff_home(request):
-    staff = get_object_or_404(Staff, staff_name__username=request.user.username)
+    user = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=user.school.name)
+    staff = get_object_or_404(Staff, staff_name__username=request.user.username, staff_name__school=school)
 
     class_form = Class_Form.objects.filter(managed_by=staff)
     
      
     staff_sub_class = staff.subject_teacher_class.all()
     staff_sub = staff.subject_teacher_subject.all()
-    term = Term.objects.first()
+    term = Term.objects.filter(school=school)
     
     
     class_id = request.GET.get('class_id')
@@ -82,7 +86,7 @@ def staff_home(request):
                         messages.error(request, "Please select class!")
                         return redirect(staff_home)
                     student_class = Class_Form.objects.get(id=class_id)
-                    students = Student.objects.filter(class_id__name=student_class).exclude(user__is_active=False)
+                    students = Student.objects.filter(class_id__name=student_class, user__school=school).exclude(user__is_active=False)
                                       
                     for item in students:
                         is_class_manager = item.class_id.managed_by == staff
@@ -106,10 +110,10 @@ def staff_home(request):
                     if selected_subject == "Subject":
                         messages.error(request, "Please select subject!")
                         return redirect(staff_home)
-                    subject = Subject.objects.filter(class_Form__name=class_id, subject_name=selected_subject).first()
+                    subject = Subject.objects.filter(class_Form__name=class_id,school=school, subject_name=selected_subject).first()
                     student_class = Class_Form.objects.get(name=class_id)
                     
-                    students = Student.objects.filter(class_id__name=student_class, subjects__subject_name=selected_subject, subjects__managed_by=staff).exclude(user__is_active=False)
+                    students = Student.objects.filter(class_id__name=student_class, user__school=school, subjects__subject_name=selected_subject, subjects__managed_by=staff).exclude(user__is_active=False)
                     for item in students:
                         is_subject = is_class_manager = any(subject.managed_by == staff for subject in item.subjects.all())
                         is_class_manager = item.class_id.managed_by == staff
@@ -146,11 +150,11 @@ def staff_home(request):
                     messages.error(request, "Please select subject!")
                     return redirect(staff_home)
                 
-                subject = Subject.objects.filter(class_Form__name=class_id, subject_name=selected_subject).first()
+                subject = Subject.objects.filter(class_Form__name=class_id, school=school, subject_name=selected_subject).first()
                 
                 student_class = Class_Form.objects.get(name=class_id)
                 
-                students = Student.objects.filter(class_id__name=student_class, subjects__subject_name=selected_subject, subjects__managed_by=staff).exclude(user__is_active=False)
+                students = Student.objects.filter(class_id__name=student_class, user__school=school, subjects__subject_name=selected_subject, subjects__managed_by=staff).exclude(user__is_active=False)
                 
                 for item in students:
                     is_subject = is_class_manager = any(subject.managed_by == staff for subject in item.subjects.all())
@@ -196,7 +200,9 @@ def staff_home(request):
 
 @login_required(login_url="/")
 def see_results(request):
-    staff = get_object_or_404(Staff, staff_name__username=request.user.username)
+    user = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=user.school.name)
+    staff = get_object_or_404(Staff, staff_name__username=request.user.username, staff_name__school=school)
     
 
     class_form = Class_Form.objects.filter(managed_by=staff)
@@ -212,7 +218,7 @@ def see_results(request):
             
             student_classx = Class_Form.objects.get(id=class_id)
             student_class = Class_Form.objects.get(id=class_id)
-            students = Student.objects.filter(class_id=student_class).exclude(user__is_active=False)
+            students = Student.objects.filter(class_id=student_class, user__school=school).exclude(user__is_active=False)
             
             results = StudentResult.objects.filter(student__class_id=student_class).exclude(student__user__is_active=False)
             
@@ -230,7 +236,7 @@ def see_results(request):
                 try:
                     html_content = render_to_string('staff/report_card.html', {
                         'grouped_results': grouped_results,
-                        'term': Term.objects.get(pk=1),
+                        'term': Term.objects.get(school=school),
                         'previous_year': request.session.get('previous_year'),
                         'current_year': request.session.get('current_year'),
                         "schoolname":schoolname,
@@ -265,11 +271,11 @@ def see_results(request):
             request.session['previous_year'] = previous_year
             request.session['current_year'] = current_year
 
-            staff = get_object_or_404(Staff, staff_name__username=request.user.username)
+            staff = get_object_or_404(Staff, staff_name__username=request.user.username, school=school)
 
             context = {
                 'grouped_results': grouped_results,
-                'term': Term.objects.get(pk=1),
+                'term': Term.objects.get(school=school),
                 "current_year":current_year,
                 "previous_year":previous_year,
                 "staff":staff,
@@ -298,9 +304,10 @@ def see_results(request):
 def send_all_results(request, class_id):
     if request.user.user_type != "STAFF":
         return JsonResponse({"error": "Unauthorized"}, status=403)
-
-    staff = get_object_or_404(Staff, staff_name=request.user)
-    students = Student.objects.filter(class_id__managed_by=staff, class_id__name=class_id).exclude(user__is_active=False)
+    user = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=user.school.name)
+    staff = get_object_or_404(Staff, staff_name__school=school, staff_name=request.user)
+    students = Student.objects.filter(class_id__managed_by=staff, user__school=school, class_id__name=class_id).exclude(user__is_active=False)
 
     status_tracker = {}
 
@@ -362,8 +369,10 @@ def generate_pdf(template_name, context):
 @login_required(login_url="/")
 def single_card(request, student):
     try:
-        staff = get_object_or_404(Staff, staff_name__username=request.user.username)
-        term = Term.objects.get(pk=1)
+        user = CustomUser.objects.get(username=request.user)
+        school = School.objects.get(name=user.school.name)
+        staff = get_object_or_404(Staff, staff_name__school=school, staff_name__username=request.user.username)
+        term = Term.objects.get(school=school)
         
         staff_class = staff.class_managed.all()
         
@@ -373,7 +382,7 @@ def single_card(request, student):
             class_id = item.name
         
             try:
-                students = Student.objects.get(class_id__name=class_id, class_id__managed_by=staff, user__username=student)
+                students = Student.objects.get(class_id__name=class_id, user__school=school, class_id__managed_by=staff, user__username=student)
                 break
             except Student.DoesNotExist:
                 continue
@@ -460,20 +469,22 @@ def single_card(request, student):
 
 @login_required(login_url="/")
 def add_marks(request, class_id):
+    user = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=user.school.name)
     
-    staff = get_object_or_404(Staff, staff_name__username = request.user)
+    staff = get_object_or_404(Staff, staff_name__username = request.user, staff_name__school=school)
 
-    student = get_object_or_404(Student,user__username=class_id)
+    student = get_object_or_404(Student,user__username=class_id, user__school=school,)
 
     current_year, previous_year = get_years(request)
 
     is_class_manager = student.class_id.managed_by == staff
 
     # Fetch all subjects for the student's class
-    subjects = Subject.objects.filter(class_Form=student.class_id)
+    subjects = Subject.objects.filter(class_Form=student.class_id, school=school)
 
     # Only allow editing of the subjects the staff is teaching
-    staff_subjects = Subject.objects.filter(class_Form=student.class_id, managed_by=staff)
+    staff_subjects = Subject.objects.filter(class_Form=student.class_id, school=school, managed_by=staff)
 
     try:
         if request.method == 'POST':
@@ -513,7 +524,7 @@ def add_marks(request, class_id):
                         return redirect(add_marks, student.user.username)
 
 
-                    term = Term.objects.first()
+                    term = Term.objects.filter(school=school)
 
                     # Create or update the StudentResult
                     student_result, created = StudentResult.objects.update_or_create(
@@ -532,6 +543,7 @@ def add_marks(request, class_id):
                     student_result.save()
                 classes, created = StudentClasses.objects.update_or_create(
                     student = student,
+                    school=school
                 )
                 classes.classes.add(student.class_id)
                 classes.year=current_year

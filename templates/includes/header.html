@@ -3,26 +3,26 @@
     <div class="header-left">
       {% if user.user_type == "HOD" %}
       <a href="{% url "hod_home" %}" class="logo">
-       <img src="{% static 'assets/bcc.png' %}" alt="Logo" style="width: 120; height: 40; object-fit: contain;">
+       <img src="{{school.logo.url}}" alt="Logo" style="width: 120; height: 40; object-fit: contain;">
        </a>
        <a href="{% url "hod_home" %}" class="logo logo-small">
-       <img src="{% static 'assets/bcc.png' %}" alt="Logo" width="30" height="30" style="object-fit: contain;">
+       <img src="{{school.logo.url}}" alt="Logo" width="30" height="30" style="object-fit: contain;">
       </a>
 
       {% elif user.user_type == "STUDENT" %}
       <a href="{% url "student_home" %}" class="logo">
-         <img src="{% static 'assets/bcc.png' %}" alt="Logo" style="width: 120; height: 40; object-fit: contain;">
+         <img src="{{school.logo.url}}" alt="Logo" style="width: 120; height: 40; object-fit: contain;">
          </a>
          <a href="{% url "student_home" %}" class="logo logo-small">
-         <img src="{% static 'assets/bcc.png' %}" alt="Logo" width="30" height="30" style="object-fit: contain;">
+         <img src="{{school.logo.url}}" alt="Logo" width="30" height="30" style="object-fit: contain;">
       </a>
       {% else %}
 
       <a href="{% url "staff_home" %}" class="logo">
-         <img src="{% static 'assets/bcc.png' %}" alt="Logo" style="width: 120; height: 40; object-fit: contain;">
+         <img src="{{school.logo.url}}" alt="Logo" style="width: 120; height: 40; object-fit: contain;">
          </a>
          <a href="{% url "staff_home" %}" class="logo logo-small">
-         <img src="{% static 'assets/bcc.png' %}" alt="Logo" width="30" height="30" style="object-fit: contain;">
+         <img src="{{school.logo.url}}" alt="Logo" width="30" height="30" style="object-fit: contain;">
       </a>
       {% endif %}
     </div>
@@ -57,7 +57,7 @@
                 <div class="user-text">
                    <h6>{{user.username|capfirst}}</h6>
                    {% if user.user_type == "HOD" %}
-                   <p class="text-muted mb-0">HOD</p>
+                   <p class="text-muted mb-0">ADMIN</p>
                    {% elif user.user_type == "STUDENT" %}
                    <p class="text-muted mb-0">STUDENT</p>
                    {% else %}

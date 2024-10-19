@@ -1,20 +1,20 @@
 {% extends "base.html" %}
-
 {% block content %}
-{% if request.user.user_type == "HOD" %}
 
 <style>
+    /* Existing styles for the form */
     input[type="number"]::-webkit-outer-spin-button,
     input[type="number"]::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
+        -webkit-appearance: none;
+        margin: 0;
     }
-  
+
     input[type="number"] {
-      -moz-appearance: textfield; /* Firefox */
-      appearance: textfield;
+        -moz-appearance: textfield;
+        appearance: textfield;
     }
-    .form-group a{
+
+    .form-group a {
         display: flex;
         gap: 1rem;
         justify-content: center;
@@ -27,18 +27,38 @@
         color: black;
     }
 
-    .form-group a:hover{
+    .form-group a:hover {
         background-color: #1a1a1a6c;
         color: white;
     }
-  </style>
+
+    #password-verification-modal {
+        display: none; /* Hidden by default */
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 30%;
+    }
+</style>
+
 <div class="page-header">
     <div class="row align-items-center">
         <div class="col">
-            <h3 class="page-title">Change Term</h3>
+            <h3 class="page-title">Edit School and Term Information</h3>
             <ul class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{% url "hod_home" %}">Dashboard</a></li>
-                <li class="breadcrumb-item active">Change Term</li>
+                <li class="breadcrumb-item active">School Details</li>
             </ul>
         </div>
     </div>
@@ -48,14 +68,39 @@
     <div class="col-sm-12">
         <div class="card">
             <div class="card-body">
-                <form method="POST">
-                    <div class="alert alert-danger" role="alert">
-                        <strong>Warning!</strong> Changing term from "Term Three" to "Term One" will automatically promote students to the next class.
-                    </div>
-                    
-                    {% include "includes/messages.html" %}
+                <!-- Warning alert for term change -->
+                <div class="alert alert-danger" role="alert">
+                    <strong>Warning!</strong> Changing term from "Term Three" to "Term One" will automatically promote students to the next class.
+                </div>
+                {% include "includes/messages.html" %}
+
+                <!-- School Information Form -->
+                <form id="school-form" method="POST" style="display:none;">
                     {% csrf_token %}
-                    
+                    {% include "includes/messages.html" %}
+
+                    <!-- School Fields (hidden by default) -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="form-title"><span>School Details</span></h5>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label for="school-name">School Name</label>
+                                <input type="text" name="name" value="{{ school.name }}" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label for="school-address">School Address</label>
+                                <input type="text" name="address" value="{{ school.address }}" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Term Information Section -->
                     <div class="row">
                         <div class="col-12">
                             <h5 class="form-title"><span>Term Information</span></h5>
@@ -101,6 +146,7 @@
                             </div>
                         </div>
 
+                        <!-- Promotion Button Section -->
                         {% if term.term == "Three" %}
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
@@ -158,9 +204,6 @@
                             });
                         </script>
 
-                    
-
-
                         <div class="col-12">
                             <p>School is currently in <b>"Term {{ term.term|capfirst }}"</b>
                             {% if term.vacation_date %}
@@ -177,14 +220,121 @@
                                 <span id="submit-btn-text">Submit</span>
                             </button>
                         </div>
-                        
-                        
-                        
                     </div>
                 </form>
+
+                <button id="verify-password-btn" class="btn btn-secondary">Edit School Information</button>
+
+                <div id="password-verification-modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h4>Verify Your Password</h4>
+                        <form id="password-form">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="password">Enter your password:</label>
+                                <input type="password" id="password" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Verify</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-{% endif %}
-{% endblock content %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Modal elements
+        var modal = $('#password-verification-modal');
+        var closeBtn = $('.close');
+        var editButton = $('#verify-password-btn'); // Button that opens the modal
+        var verifyButton = $('#password-form button[type="submit"]'); // Button inside the form for verification
+        var submitButton = $('#submit-btn'); // Submit button in the main form
+        var promoteButton = $('#promote-students'); // Promote button
+        var inactivityTime; // Timer variable
+        var inactivityLimit = 30000; // 5 minutes (in milliseconds)
+
+        // Function to reset inactivity timer
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTime); // Clear the existing timer
+            inactivityTime = setTimeout(lockPage, inactivityLimit); // Set a new timer
+        }
+
+        // Function to lock the page
+        function lockPage() {
+            modal.show(); // Show the password verification modal
+            $('#password').val(''); // Clear the password field
+        }
+
+        // Show modal when "Edit School Information" button is clicked
+        editButton.click(function() {
+            modal.show();
+        });
+        
+        // Close the modal when the user clicks on the close button
+        closeBtn.click(function() {
+            modal.hide();
+        });
+
+        // Password verification logic using AJAX
+        $('#password-form').submit(function(event) {
+            event.preventDefault(); // Prevent form submission
+    
+            var password = $('#password').val();
+            
+            // Change button text to "Verifying..." inside the modal
+            verifyButton.text("Verifying...");
+    
+            $.ajax({
+                url: "{% url 'verify_password' %}",  // URL for your password verification
+                type: "POST",
+                data: {
+                    password: password,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',  // CSRF token
+                },
+                success: function(response) {
+                    if (response.verified) {
+                        // Make form fields editable
+                        $('#school-form').show();
+                        $('input').removeAttr('readonly');
+                        $('select').removeAttr('disabled');
+    
+                        // Hide the "Edit School Information" button
+                        editButton.hide();
+    
+                        // Reset the verify button text and hide the modal
+                        verifyButton.text("Verify");
+    
+                        // Enable submit and promote buttons
+                        submitButton.prop("disabled", false);
+                        promoteButton.prop("disabled", false);
+    
+                        // Hide modal
+                        modal.hide();
+                    } else {
+                        // Handle incorrect password case
+                        alert("Password is incorrect. Please try again.");
+                        verifyButton.text("Verify"); // Reset button text
+                    }
+                },
+                error: function() {
+                    // Handle any errors during the AJAX request
+                    alert("An error occurred. Please try again.");
+                    verifyButton.text("Verify"); // Reset button text
+                }
+            });
+        });
+
+        // Event listeners for user activity
+        $(document).on('mousemove keydown click', resetInactivityTimer);
+        
+        // Initialize the inactivity timer
+        resetInactivityTimer();
+    });
+</script>
+
+
+{% endblock %}

@@ -16,7 +16,7 @@ SECRET_KEY = config("SECRET_KEY")
 
 
 DEBUG = config('DEBUG', cast=bool)
-# DEBUG = False
+# DEBUG = True
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
@@ -61,9 +61,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'cenartechapp.middleware.Custom404Middleware',
-    'cenartechapp.middleware.Custom403Middleware',
-    'cenartechapp.middleware.Custom500Middleware',
+    # 'cenartechapp.middleware.Custom404Middleware',
+    # 'cenartechapp.middleware.Custom403Middleware',
+    # 'cenartechapp.middleware.Custom500Middleware',
     'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 
@@ -81,6 +81,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'cenartechapp.context_processors.current_year',
+                'cenartechapp.context_processors.school_info',
                 
             ],
         },

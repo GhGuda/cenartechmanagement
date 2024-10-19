@@ -7,6 +7,8 @@ from .models import Class_Form
 from .models import StudentResult
 from .models import StudentClasses
 from .models import Term
+from .models import CustomUser
+from .models import School
 from django.template.loader import render_to_string
 from django.contrib import messages
 from .staff_view import get_years
@@ -28,10 +30,12 @@ school_number=settings.SCHOOL_NUM
 
 @login_required(login_url='/')
 def display_student_results(request):
-    student = get_object_or_404(Student, user=request.user)
+    user = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=user.school.name)
+    student = get_object_or_404(Student, user=request.user, user__school=school)
     student_year = None
     try:
-        classes = StudentClasses.objects.get(student=student)
+        classes = StudentClasses.objects.get(student=student, school=school)
         class_list = classes.classes.all()
         studentResult = StudentResult.objects.filter(student=student)
         
@@ -142,8 +146,10 @@ def display_student_results(request):
 
 @login_required(login_url='/')
 def student_home(request):
-    term = Term.objects.get(pk=1)
-    student = get_object_or_404(Student, user=request.user)
+    user = CustomUser.objects.get(username=request.user)
+    school = School.objects.get(name=user.school.name)
+    term = Term.objects.get(school=school)
+    student = get_object_or_404(Student, user=request.user, user__school=school)
     current_year, previous_year = get_years(request)
     
     

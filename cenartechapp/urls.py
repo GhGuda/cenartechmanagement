@@ -29,6 +29,7 @@ urlpatterns = [
     
     # path('HOD/add/course', hod_views.add_course, name="add_course"),
     
+    path('HOD/confirm/psd', views.verify_password, name="verify_password"),
     path('HOD/add/staff', hod_views.add_staff, name="add_staff"),
     path('HOD/view/staffs', hod_views.view_staffs, name="view_staffs"),
     path('HOD/assign/staff/to_class', hod_views.assign_staffs, name="assign_staffs"),
@@ -61,3 +62,5 @@ urlpatterns = [
     
     
 ]
+
+
