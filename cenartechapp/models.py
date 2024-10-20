@@ -3,45 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models import Sum
 from decimal import Decimal, ROUND_HALF_UP
 
-from django.contrib.auth.models import BaseUserManager
-
-class CustomUserManager(BaseUserManager):
-    def create_user(self, username, email=None, password=None, **extra_fields):
-        """
-        Creates and saves a regular user with the given username, email, and password.
-        """
-        if not username:
-            raise ValueError('The Username field is required')
-
-        email = self.normalize_email(email)
-        user = self.model(username=username, email=email, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, username, email=None, password=None, **extra_fields):
-        """
-        Creates and saves a superuser with the given username, email, and password.
-        """
-        extra_fields.setdefault('is_staff', False)
-        extra_fields.setdefault('is_superuser', False)
-
-        school_name = input("Enter the school name: ")
-        school, created = School.objects.get_or_create(name=school_name)
-
-        # Create a default Term associated with the school
-        Term.objects.get_or_create(term="One", school=school)
-
-        # Assign the school to the superuser
-        extra_fields['school'] = school
-
-        return self.create_user(username, email, password, **extra_fields)
-
-
-
-
-
-
 
 class School(models.Model):
     name = models.CharField(max_length=255)
@@ -49,6 +10,8 @@ class School(models.Model):
     number = models.CharField(max_length=100, null=True, blank=True)
     slogan = models.CharField(max_length=100, null=True, blank=True)
     logo = models.ImageField(upload_to="schools_logo", default="blank.webp")
+    deactivate = models.BooleanField(default=False)
+
     def __str__(self):
         return f"{self.name} at {self.address}"
         
@@ -58,16 +21,14 @@ class CustomUser(AbstractUser):
         ('HOD', 'HOD'),
         ('STAFF', 'STAFF'),
         ('STUDENT', 'STUDENT'),
+        ('ADMIN', 'ADMIN'),
     )
     
     school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=True)
-    user_type = models.CharField(choices=USER_CHOICE, max_length=50, default="HOD")
+    user_type = models.CharField(choices=USER_CHOICE, max_length=50, default="ADMIN")
     profile_pic = models.ImageField(upload_to="profile_pic", default="blank.webp")
     middle_name = models.CharField(max_length=200, blank=True)
     
-    objects = CustomUserManager()
-
-
 
     
 

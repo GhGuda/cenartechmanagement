@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if request.user.user_type == "ADMIN" %}
+<style>
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  
+    input[type="number"] {
+      -moz-appearance: textfield; /* Firefox */
+      appearance: textfield;
+    }
+  </style>
+
+
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">Add School</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url "enartech_admin_home" %}">Dashboard</a></li>
+                <li class="breadcrumb-item active">Add School</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% include "includes/messages.html" %}
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="form-title"><span>Details</span></h5>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Username</label>
+                                <input type="text" name="username" value="{{ entered_data.username|default_if_none:'' }}" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" name="email" value="{{ entered_data.email|default_if_none:'' }}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>School's Name</label>
+                                <input type="text" name="school_name" value="{{ entered_data.school_name|default_if_none:'' }}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="text" name="password" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">Add School</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+{% endblock content %}

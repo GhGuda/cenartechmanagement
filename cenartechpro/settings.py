@@ -15,8 +15,8 @@ WKHTMLTOPDF_PATH = config("WKHTMLTOPDF_PATH")
 SECRET_KEY = config("SECRET_KEY")
 
 
-DEBUG = config('DEBUG', cast=bool)
-# DEBUG = True
+# DEBUG = config('DEBUG', cast=bool)
+DEBUG = True
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
@@ -97,18 +97,18 @@ WSGI_APPLICATION = 'cenartechpro.wsgi.application'
 
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': config("ENGINE"),
-    #     'NAME': config("NAME"),
-    #     'USER': config("USER"),
-    #     'PASSWORD': config("PASSWORD"),
-    #     'HOST': config("HOST"),
-    #     'PORT': config("PORT"),
-    # }
+    'default': {
+        'ENGINE': config("ENGINE"),
+        'NAME': config("NAME"),
+        'USER': config("USER"),
+        'PASSWORD': config("PASSWORD"),
+        'HOST': config("HOST"),
+        'PORT': config("PORT"),
+    }
 }
 
 # if not DEBUG and config('DBURL') is not None:
-DATABASES['default'] = dj_database_url.parse(config('DBURL'))
+# DATABASES['default'] = dj_database_url.parse(config('DBURL'))
 
 
 # Password validation

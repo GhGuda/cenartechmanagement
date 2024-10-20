@@ -1,5 +1,7 @@
 import os
 import shutil
+from django.contrib import messages
+
 
 def delete_report_cards():
     report_cards_folder = os.path.join('media', 'report_cards')
@@ -13,7 +15,7 @@ def delete_report_cards():
                 elif os.path.isdir(file_path):
                     shutil.rmtree(file_path)
             except Exception as e:
-                print(f"Error deleting {file_path}: {e}")
+                messages.error(f"Error deleting {file_path}: {e}")
     else:
-        print("The report_cards folder does not exist.")
+        messages.error("The report_cards folder does not exist.")
         

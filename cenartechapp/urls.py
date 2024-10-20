@@ -7,12 +7,7 @@ urlpatterns = [
     path('doLogin', views.doLogin, name="doLogin"),
     
     
-    
-    
     path('profile/update', views.profile, name="profile"),
-    
-    
-    
     
     
     # HODVIEWS 

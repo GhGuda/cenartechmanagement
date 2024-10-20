@@ -35,11 +35,11 @@
     #password-verification-modal {
         display: none; /* Hidden by default */
         position: fixed;
-        z-index: 1;
+        z-index: 100;
         left: 0;
         top: 0;
-        width: 100%;
-        height: 100%;
+        width: 100vw;
+        height: 100vh;
         background-color: rgba(0, 0, 0, 0.4);
     }
 
@@ -75,7 +75,7 @@
                 {% include "includes/messages.html" %}
 
                 <!-- School Information Form -->
-                <form id="school-form" method="POST" style="display:none;">
+                <form id="school-form" method="POST" enctype="multipart/form-data" style="display:none;">
                     {% csrf_token %}
                     {% include "includes/messages.html" %}
 
@@ -87,15 +87,33 @@
 
                         <div class="col-12 col-sm-6">
                             <div class="form-group">
-                                <label for="school-name">School Name</label>
+                                <label for="school-name">School Name*</label>
                                 <input type="text" name="name" value="{{ school.name }}" class="form-control" required>
                             </div>
                         </div>
 
                         <div class="col-12 col-sm-6">
                             <div class="form-group">
-                                <label for="school-address">School Address</label>
+                                <label for="school-address">School Number*</label>
+                                <input type="number" name="number" value="{{ school.number }}" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label for="school-address">School Slogan*</label>
+                                <input type="text" name="slogan" value="{{ school.slogan }}" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label for="school-address">School Address*</label>
                                 <input type="text" name="address" value="{{ school.address }}" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label for="school-address">School Logo</label>
+                                <input type="file" name="logo" accept="image/*" id="profile_pic" class="form-control">
                             </div>
                         </div>
                     </div>
@@ -122,8 +140,8 @@
 
                         <div class="col-12 col-sm-6">
                             <div class="form-group">
-                                <label for="term">Term</label>
-                                <select name="term" id="term" class="form-control">
+                                <label for="term">Term*</label>
+                                <select name="term" id="term" class="form-control" required>
                                     <option hidden>Select Term</option>
                                     <option value="One">Term One</option>
                                     <option value="Two">Term Two</option>
@@ -134,14 +152,14 @@
 
                         <div class="col-12 col-sm-6">
                             <div class="form-group">
-                                <label for="hod_remark">Head Teacher's Remark</label>
+                                <label for="hod_remark">Head Teacher's Remark*</label>
                                 <input type="text" name="hod_remark" value="{{term.hod_remarks}}" class="form-control">
                             </div>
                         </div>
 
                         <div class="col-12 col-sm-6">
                             <div class="form-group">
-                                <label for="cutoffpoint">Cut Off Point</label>
+                                <label for="cutoffpoint">Cut Off Point*</label>
                                 <input type="number" name="cutoffpoint" value="{{term.cutOfPoint}}" id="cutoffpoint" class="form-control">
                             </div>
                         </div>
@@ -227,7 +245,6 @@
 
                 <div id="password-verification-modal">
                     <div class="modal-content">
-                        <span class="close">&times;</span>
                         <h4>Verify Your Password</h4>
                         <form id="password-form">
                             {% csrf_token %}
@@ -333,6 +350,47 @@
         
         // Initialize the inactivity timer
         resetInactivityTimer();
+    });
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const staffTypeSelect = document.querySelector('select[name="staff_type"]');
+        const classToTeachDiv = document.getElementById('classToTeachDiv');
+        const subjectToTeachDiv = document.getElementById('subjectToTeachDiv');
+        const classToManageDiv = document.getElementById('classToManageDiv');
+
+        const inputFile = document.getElementById('profile_pic');
+
+        inputFile.addEventListener('change', function () {
+            const file = this.files[0];
+            if (file && file.size > 5 * 1024 * 1024) { // 5MB
+               alert('Logo is too large. Maximum size allowed is 5MB!');
+               this.value = ''; // Clear the input
+            }
+         });
+
+        function toggleFields() {
+            const staffType = staffTypeSelect.value;
+
+            // Hide all by default
+            classToTeachDiv.style.display = 'none';
+            subjectToTeachDiv.style.display = 'none';
+            classToManageDiv.style.display = 'none';
+
+            if (staffType === 'Class Manager') {
+                classToManageDiv.style.display = 'block';
+                subjectToTeachDiv.style.display = 'block';
+            } else if (staffType === 'Subject Teacher') {
+                classToTeachDiv.style.display = 'block';
+                subjectToTeachDiv.style.display = 'block';
+            }
+        }
+
+        toggleFields();
+
+        staffTypeSelect.addEventListener('change', toggleFields);
     });
 </script>
 

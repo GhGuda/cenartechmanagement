@@ -28,6 +28,8 @@ def verify_password(request):
             return JsonResponse({"verified": True})
         else:
             return JsonResponse({"verified": False})
+        
+        
 
 
 def custom_403(request, exception):
@@ -131,6 +133,9 @@ def doLogin(request):
                 elif user_type == 'STUDENT':
                     messages.success(request, "Login successful!")
                     return redirect('student_home')
+                elif user_type == 'ADMIN':
+                    messages.success(request, "Login successful!")
+                    return redirect('enartech_admin_home')
                 else:
                     messages.error(request, "User type is not recognized.")
                     return render(request, 'index.html', {

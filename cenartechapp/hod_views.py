@@ -16,12 +16,11 @@ from .staff_view import get_years
 from django.db.models import Count
 from django.db.models import Q
 from django.conf import settings
-import smtplib
-from email.message import EmailMessage
-import re
+import re, os
 from django.http import JsonResponse
 
 from .utils import delete_report_cards
+from .emails import send_email
 
 
 
@@ -52,9 +51,9 @@ def home(request):
     subject = Subject.objects.values('subject_name').distinct()
 
 
-    term = Term.objects.first()
-    student_gender_male = Student.objects.filter(gender="male",user__school=school).exclude(user__is_active=False).count()
-    student_gender_female = Student.objects.filter(gender="female", user__school=school).exclude(user__is_active=False).count()
+    term = Term.objects.get(school=school)
+    student_gender_male = Student.objects.filter(gender="Male",user__school=school).exclude(user__is_active=False).count()
+    student_gender_female = Student.objects.filter(gender="Female", user__school=school).exclude(user__is_active=False).count()
     current_year, previous_year = get_years(request)
     
     # PassedStudents doings
@@ -166,8 +165,8 @@ def add_student(request):
     school = School.objects.get(name=user.school.name)
     student_classes = Class_Form.objects.all().exclude(name="Completed Class")
 
-    if request.method == "POST":
-        try:
+    try:
+        if request.method == "POST":
             profile_pic = request.FILES.get('profile_pic')
             if not profile_pic:
                 profile_pic = 'blank.webp'
@@ -236,28 +235,18 @@ def add_student(request):
                     "entered_data": request.POST,
                     "class": student_classes,  
                 })
-            elif CustomUser.objects.filter(username__iexact=username).exists():
+            if CustomUser.objects.filter(username__iexact=username).exists():
                 messages.error(request, "Username already exists!")
                 return render(request, 'hod/add_student.html', {
                     "entered_data": request.POST,
                     "class": student_classes,
                 })
-            else:
                 # Send mail
-                email_sent = False
+            email_sent = False
 
                 # Attempt to send the email to the student's email
-                if email:
-                    try:
-                        smtp = smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT)
-                        smtp.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
-                        msg = EmailMessage()
-                        msg['Subject'] = f"Welcome to {schoolname}"
-                        msg['From'] = settings.EMAIL_HOST_USER
-                        msg['To'] = email
-
-                        msg.add_alternative(
-                            f"""
+            if email:
+                body=f"""
                             <html>
                             <body>
                                 <h2 style="color: #2E86C1;">Welcome to {schoolname}!</h2>
@@ -279,74 +268,52 @@ def add_student(request):
                                 <p><strong>The {schoolname} Team</strong></p>
                             </body>
                             </html>
-                            """,
-                            subtype='html'
-                        )
-                        smtp.send_message(msg)
-                        smtp.quit()
-                        email_sent = True
-                    except:
-                        messages.error(request, f"Failed to send email, please check your internet connection!")
-                        return redirect(add_student)
+                            """
+                        
+                email_sent = send_email(request, f'Welcome to {schoolname}', email, body)
+                    
                 
                 # Attempt to send the email to the father's email
-                if father_email:
-                    try:
-                        smtp = smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT)
-                        smtp.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
-                        msg = EmailMessage()
-                        msg['Subject'] = f"Thank You for Admitting Your Ward to {schoolname}"
-                        msg['From'] = settings.EMAIL_HOST_USER
-                        msg['To'] = father_email
-                        if father_name:
-                            greeting = f"Dear Mr. {father_name},"
-                        else:
-                            greeting = "Dear Parent,"
+            if father_email:
+
+                subject = f"Thank You for Admitting Your Ward to {schoolname}"
+                if father_name:
+                    greeting = f"Dear Mr. {father_name},"
+                else:
+                    greeting = "Dear Parent,"
                             
-                        msg.add_alternative(
-                            f"""
-                            <html>
-                            <body>
-                                <p>{greeting}</p>
-                                <p>Thank you for entrusting us with your ward's education. We are honored to have them as part of the 
-                                {schoolname} family. Our commitment is to provide a nurturing environment that promotes both academic 
-                                excellence and personal growth.</p>
-                                <h3 style="margin-top: 20px; text-align:center;">Here Are Your Ward's Login Credentials</h3>
-                                <strong style="margin-top: 20px; color:red; text-align:center;">Please keep these credentials confidential!</strong>
-                                <p>Username: <strong>{str(username).capitalize()}</strong></p>
-                                <p>Email: <strong>{str(email).capitalize()}</strong></p>
-                                <p>Password: <strong>{str(student_password)}</strong></p>
-                                <p>Access your ward's dashboard at: <a href="{schoolweb}">{str(schoolweb).upper()}</a></p>
-                                <p style="margin-top: 20px;">Best regards,</p>
-                                <p><strong>{schoolname}</strong></p>
-                            </body>
-                            </html>
-                            """,
-                            subtype='html'
-                        )
-                        smtp.send_message(msg)
-                        smtp.quit()
-                        email_sent = True
-                    except:
-                        messages.error(request, f"Failed to send email to, please check your internet connection!")
+                            
+                body=f"""
+                    <html>
+                    <body>
+                        <p>{greeting}</p>
+                        <p>Thank you for entrusting us with your ward's education. We are honored to have them as part of the 
+                        {schoolname} family. Our commitment is to provide a nurturing environment that promotes both academic 
+                        excellence and personal growth.</p>
+                        <h3 style="margin-top: 20px; text-align:center;">Here Are Your Ward's Login Credentials</h3>
+                        <strong style="margin-top: 20px; color:red; text-align:center;">Please keep these credentials confidential!</strong>
+                        <p>Username: <strong>{str(username).capitalize()}</strong></p>
+                        <p>Email: <strong>{str(email).capitalize()}</strong></p>
+                        <p>Password: <strong>{str(student_password)}</strong></p>
+                        <p>Access your ward's dashboard at: <a href="{schoolweb}">{str(schoolweb).upper()}</a></p>
+                        <p style="margin-top: 20px;">Best regards,</p>
+                        <p><strong>{schoolname}</strong></p>
+                    </body>
+                    </html>
+                    """
+                email_sent = send_email(request, subject, father_email, body)
 
                 # Attempt to send the email to the mother's email
-                if mother_email:
-                    try:
-                        smtp = smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT)
-                        smtp.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
-                        msg = EmailMessage()
-                        msg['Subject'] = f"Thank You for Admitting Your Ward to {schoolname}"
-                        msg['From'] = settings.EMAIL_HOST_USER
-                        msg['To'] = mother_email
-                        if mother_name:
-                            greetin = f"Dear Mrs. {mother_name},"
-                        else:
-                            greetin = "Dear Parent,"
-                            
-                        msg.add_alternative(
-                            f"""
-                            <html>
+            if mother_email:
+                subject = f"Thank You for Admitting Your Ward to {schoolname}"
+                        
+                if mother_name:
+                    greetin = f"Dear Mrs. {mother_name},"
+                else:
+                    greetin = "Dear Parent,"
+                
+                body=f"""
+                        <html>
                             <body>
                                 <p>{greetin}</p>
                                 <p>Thank you for entrusting us with your ward's education. We are honored to have them as part of the 
@@ -361,19 +328,15 @@ def add_student(request):
                                 <p style="margin-top: 20px;">Best regards,</p>
                                 <p><strong>{schoolname}</strong></p>
                             </body>
-                            </html>
-                            """,
-                            subtype='html'
-                        )
-                        smtp.send_message(msg)
-                        smtp.quit()
-                        email_sent = True
-                    except:
-                        messages.error(request, f"Failed to send email, please check your internet connection!")
+                        </html>
+                    """       
+                email_sent = send_email(request, subject, mother_email, body)
 
-                # Save the user and student data if at least one email was provided and sent successfully
-                if email_sent or (not email and not father_email and not mother_email):
-                    user = CustomUser.objects.create(
+                
+                    
+            # Save the user and student data if at least one email was provided and sent successfully
+            if email_sent or (not email and not father_email and not mother_email):
+                user = CustomUser.objects.create_user(
                         username=username,
                         password=student_password,
                         first_name=fname,
@@ -385,9 +348,9 @@ def add_student(request):
                         school = school,
                     )
 
-                    # Get class and create student
-                    student_class = Class_Form.objects.get(id=class_id)
-                    student = Student.objects.create(
+                # Get class and create student
+                student_class = Class_Form.objects.get(id=class_id)
+                student = Student.objects.create(
                         user=user,
                         gender=gender,
                         dob=dob,
@@ -405,41 +368,42 @@ def add_student(request):
                         address2=address2,
                     )
 
-                    current_year, previous_year = get_years(request)
-                    term = Term.objects.get(pk=1)
+                current_year, previous_year = get_years(request)
+                term = Term.objects.get(school=school)
 
-                    admitted_students = AdmittedStudents.objects.create(
+                admitted_students = AdmittedStudents.objects.create(
                         class_form=student.class_id.name,
                         term=term.term,
                         year=current_year,
                         school = school,
                     )
-                    admitted_students.save()
+                admitted_students.save()
 
-                    yearly, created = YearlyAdmittedStudents.objects.update_or_create(
+                yearly, created = YearlyAdmittedStudents.objects.update_or_create(
                         year=current_year,
                         school = school,
                         
                     )
-                    yearly.number += 1
-                    yearly.save()
+                yearly.number += 1
+                yearly.save()
 
-                    # Ensure student is saved before assigning subjects
-                    student.save()
-                    student.assign_subjects()
-                    messages.success(request, "Student added successfully!")
-                    return redirect('add_student')
+                # Ensure student is saved before assigning subjects
+                student.save()
+                student.assign_subjects()
+                messages.success(request, "Student added successfully!")
+                return redirect('add_student')
 
-        except:
-            messages.error(request, f"Error: Failed to add student!")
-            return render(request, 'hod/add_student.html', {
+
+        context = {
+            "class": student_classes,
+        }
+    except Exception as e:
+        print(e)
+        messages.error(request, f"Error: Failed to add student!")
+        return render(request, 'hod/add_student.html', {
                 "entered_data": request.POST,
                     "class": student_classes,
-            })
-
-    context = {
-        "class": student_classes,
-    }
+        })
     return render(request, 'hod/add_student.html', context)
 
 
@@ -467,7 +431,7 @@ def delete_student(request, user_name):
         user = get_object_or_404(CustomUser, username=user_name, school=school)
         student= get_object_or_404(Student, user=user)
         current_year, previous_year = get_years(request)
-        term = Term.objects.get(pk=1)
+        term = Term.objects.get(school=school)
         
         passed_stedents = PassedStudents.objects.create(
             class_form = student.class_id.name,
@@ -578,7 +542,7 @@ def edit_student(request, user_name):
     user = get_object_or_404(CustomUser, username=user_name, school=school)
     student = get_object_or_404(Student, user=user)
     classes = Class_Form.objects.all().exclude(name="Completed Class")
-    term = Term.objects.get(pk=1)
+    term = Term.objects.get(school=school)
     try:
         if request.method == "POST":
             firstname = request.POST["fname"].capitalize().replace(' ', '')
@@ -1359,12 +1323,29 @@ def add_term(request):
             cutoffpoint = request.POST['cutoffpoint']
             name = request.POST['name']
             address = request.POST['address']
-
+            slogan = request.POST['slogan']
+            number = request.POST['number']
+            logo = request.FILES.get('logo')
+            if logo:
+                max_file_size = 5 * 1024 * 1024  # 1MB limit
+                if logo.size > max_file_size:
+                    messages.error(request, "Logo is too large. Maximum size allowed is 5MB!")
+                    return redirect(add_term)
+                if school.logo:
+                    old_logo_path = os.path.join(settings.MEDIA_ROOT, str(school.logo))
+                    if os.path.exists(old_logo_path):
+                        os.remove(old_logo_path)
+                
+                    new_logo_name = f"{school.name}_{logo}"
+                    school.logo.save(new_logo_name, logo)
             previous_term = term.term 
 
             if term_value != "Select Term":
                 school.name = name
                 school.address = address
+                school.slogan = slogan
+                school.number = number
+                school.number = number
                 term.term = term_value
                 term.vacation_date = vacation
                 term.reopening_date = rdate

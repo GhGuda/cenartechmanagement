@@ -16,7 +16,7 @@
          <a href="{% url "student_home" %}" class="logo logo-small">
          <img src="{{school.logo.url}}" alt="Logo" width="30" height="30" style="object-fit: contain;">
       </a>
-      {% else %}
+      {% elif user.user_type == "STAFF" %}
 
       <a href="{% url "staff_home" %}" class="logo">
          <img src="{{school.logo.url}}" alt="Logo" style="width: 120; height: 40; object-fit: contain;">
@@ -57,11 +57,13 @@
                 <div class="user-text">
                    <h6>{{user.username|capfirst}}</h6>
                    {% if user.user_type == "HOD" %}
-                   <p class="text-muted mb-0">ADMIN</p>
+                   <p class="text-muted mb-0">SCHOOL ADMIN</p>
                    {% elif user.user_type == "STUDENT" %}
                    <p class="text-muted mb-0">STUDENT</p>
-                   {% else %}
+                   {% elif user.user_type == "STAFF" %}
                    <p class="text-muted mb-0">STAFF</p>
+                   {% elif user.user_type == "ADMIN" %}
+                   <p class="text-muted mb-0">CENARTECH</p>
                    {% endif %}
                 </div>
              </div>

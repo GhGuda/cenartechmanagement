@@ -59,7 +59,7 @@
                         </div>
                         <div class="col-12 col-sm-6">
                             <div class="form-group">
-                                <label>Gender</label>
+                                <label>Gender*</label>
                                 <select name="gender" class="form-control" required>
                                     <option hidden>Gender</option>
                                     <option value="Male" {% if entered_data.gender == "Male" %}selected{% endif %}>Male</option>
@@ -70,7 +70,7 @@
 
                         <div class="col-12 col-sm-6">
                             <div class="form-group">
-                                <label>Staff Type</label>
+                                <label>Staff Type*</label>
                                 <select name="staff_type" id="staffType" class="form-control" required>
                                     <option hidden>Staff Type</option>
                                     <option value="Class Manager" {% if entered_data.staff_type == "Class Manager" %}selected{% endif %}>Class Manager</option>
@@ -81,7 +81,7 @@
                         
                         <div class="col-12 col-sm-6" id="classToTeachDiv" style="display: none;">
                             <div class="form-group">
-                                <label>Class/Form to Teach</label>
+                                <label>Class/Form to Teach*</label>
                                 <select name="class_form_teach" class="form-control">
                                     <option hidden>Select Class/Form</option>
                                     {% for class_form in class %}
@@ -93,7 +93,7 @@
                         
                         <div class="col-12 col-sm-6" id="subjectToTeachDiv" style="display: none;">
                             <div class="form-group">
-                                <label>Subject to Teach</label>
+                                <label>Subject to Teach*</label>
                                 <select name="subject_teach" class="form-control">
                                     <option hidden>Select Subject</option>
                                     {% for subjects in subject %}
@@ -105,7 +105,7 @@
                         
                         <div class="col-12 col-sm-6" id="classToManageDiv" style="display: none;">
                             <div class="form-group">
-                                <label>Class/Form to Be Managed</label>
+                                <label>Class/Form to Be Managed*</label>
                                 <select name="class_form" class="form-control">
                                     <option hidden>Select Class/Form</option>
                                     {% for class_form in class %}
@@ -118,7 +118,7 @@
 
                         <div class="col-12 col-sm-6">
                             <div class="form-group">
-                                <label>Mobile</label>
+                                <label>Mobile*</label>
                                 <input type="number" name="phone" value="{{ entered_data.phone|default_if_none:'' }}" class="form-control">
                             </div>
                         </div>
@@ -151,25 +151,25 @@
                         </div>
                         <div class="col-12 col-sm-6">
                             <div class="form-group">
-                                <label>Username</label>
+                                <label>Username*</label>
                                 <input type="text" name="username" value="{{ entered_data.username|default_if_none:'' }}" class="form-control" required>
                             </div>
                         </div>
                         <div class="col-12 col-sm-6">
                             <div class="form-group">
-                                <label>Email ID</label>
+                                <label>Email</label>
                                 <input type="email" name="email" value="{{ entered_data.email|default_if_none:'' }}" class="form-control">
                             </div>
                         </div>
                         <div class="col-12 col-sm-6">
                             <div class="form-group">
-                                <label>Password</label>
+                                <label>Password*</label>
                                 <input type="text" name="password1" class="form-control" required>
                             </div>
                         </div>
                         <div class="col-12 col-sm-6">
                             <div class="form-group">
-                                <label>Repeat Password</label>
+                                <label>Repeat Password*</label>
                                 <input type="text" name="password2" class="form-control">
                             </div>
                         </div>
