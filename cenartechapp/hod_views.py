@@ -860,19 +860,14 @@ def add_staff(request):
                     
                     email_sent = False
                     if email:
-                        try:
-                            smtp = smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT)
-                            smtp.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
-                            msg = EmailMessage()
-                            msg['Subject'] = f"Welcome to {schoolname}"
-                            msg['From'] = EMAIL_HOST_USER
-                            msg['To'] = email
+                        subject = f"Welcome to {schoolname}"
+                      
                             
                             
                             
 
-                            msg.add_alternative(
-                                f"""
+                            
+                        body=f"""
                                 <html>
                                 <body>
                                     <h2 style="color: #2E86C1;">Welcome to {schoolname}!</h2>
@@ -894,18 +889,10 @@ def add_staff(request):
                                 </body>
                                 </html>
                                 """,
-                                subtype='html'
-                            )
-                            smtp.send_message(msg)
-                            smtp.quit()
-                            email_sent = True
-                        except:
-                            messages.error(request, f"Please check your internet connection!")
-                            return render(request, 'hod/add_staff.html', {
-                                "class": class_forms,
-                                "subject": subject,
-                                "entered_data": request.POST
-                            })
+                               
+                           
+                        email_sent = send_email(subject, email, body)
+                        
                         
                     if email_sent or (not email):
 
